@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class WhatBaddieDo : MonoBehaviour
@@ -10,6 +11,7 @@ public class WhatBaddieDo : MonoBehaviour
     public GameObject DamageTextParent;
     private GameObject canvas;
     private GameManagerStuff gameManager;
+    private Color colorHSVRand;
 
     // Use this for initialization
     void Start()
@@ -17,6 +19,9 @@ public class WhatBaddieDo : MonoBehaviour
         currentHP = maxHP;
         canvas = GameObject.Find("Canvas");
         gameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
+        Color colorHSVRand = Random.ColorHSV();
+        print(colorHSVRand);
+        print(Color.HSVToRGB(colorHSVRand.a, colorHSVRand.b, colorHSVRand.g));
     }
 
     // Update is called once per frame
@@ -74,9 +79,8 @@ public class WhatBaddieDo : MonoBehaviour
         if(idString == "Bonus")
         {
             gameObject.transform.parent.transform.Translate(-Vector3.forward * Time.deltaTime * moveSpeed); //enemy movement
-            transform.Rotate(Vector3.right * Random.value * 2);
-            transform.GetChild(0).transform.Rotate(Vector3.up * Random.value * 2);
-            transform.GetChild(1).transform.Rotate(Vector3.forward * Random.value * 2);
+            transform.Rotate(Vector3.right * Random.value * 5);
+            gameObject.GetComponent<Renderer>().material.color = Color.Lerp(Color.HSVToRGB(colorHSVRand.a, colorHSVRand.b, colorHSVRand.g), Color.black, Mathf.PingPong(Time.time, 1));
         }
         else
         {
@@ -84,7 +88,7 @@ public class WhatBaddieDo : MonoBehaviour
         }
     }
 
-    public void EnemyType(string type)
+        public void EnemyType(string type)
     {
         idString = type;
         switch (type)
@@ -142,23 +146,6 @@ public class WhatBaddieDo : MonoBehaviour
                 BonusParent.gameObject.name = gameObject.name;
                 BonusParent.gameObject.transform.SetParent(gameObject.transform.parent);
                 gameObject.transform.SetParent(BonusParent.transform);
-
-                GameObject AnimPurposes = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                AnimPurposes.transform.SetParent(gameObject.transform);
-                AnimPurposes.transform.position = transform.position;
-                AnimPurposes.transform.localScale = Vector3.one;
-                AnimPurposes.GetComponent<Renderer>().material.color = Color.black;
-                AnimPurposes.name = ("AnimPurposes");
-                Destroy(AnimPurposes.GetComponent<BoxCollider>());
-
-                GameObject AnimPurposes2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                AnimPurposes2.transform.SetParent(gameObject.transform);
-                AnimPurposes2.transform.position = transform.position;
-                AnimPurposes2.transform.localScale = Vector3.one;
-                AnimPurposes2.GetComponent<Renderer>().material.color = Color.black;
-                AnimPurposes2.name = ("AnimPurposes2");
-                Destroy(AnimPurposes2.GetComponent<BoxCollider>());
-
                 break;
 
             case "Child":
