@@ -11,7 +11,6 @@ public class WhatBaddieDo : MonoBehaviour
     public GameObject DamageTextParent;
     private GameObject canvas;
     private GameManagerStuff gameManager;
-    private Color colorHSVRand;
 
     // Use this for initialization
     void Start()
@@ -19,9 +18,6 @@ public class WhatBaddieDo : MonoBehaviour
         currentHP = maxHP;
         canvas = GameObject.Find("Canvas");
         gameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
-        Color colorHSVRand = Random.ColorHSV();
-        print(colorHSVRand);
-        print(Color.HSVToRGB(colorHSVRand.a, colorHSVRand.b, colorHSVRand.g));
     }
 
     // Update is called once per frame
@@ -80,7 +76,7 @@ public class WhatBaddieDo : MonoBehaviour
         {
             gameObject.transform.parent.transform.Translate(-Vector3.forward * Time.deltaTime * moveSpeed); //enemy movement
             transform.Rotate(Vector3.right * Random.value * 5);
-            gameObject.GetComponent<Renderer>().material.color = Color.Lerp(Color.HSVToRGB(colorHSVRand.a, colorHSVRand.b, colorHSVRand.g), Color.black, Mathf.PingPong(Time.time, 1));
+            gameObject.GetComponent<Renderer>().material.color = Color.Lerp(Color.yellow, Color.black, Mathf.PingPong(Time.time, 1));
         }
         else
         {

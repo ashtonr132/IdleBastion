@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemySpawning : MonoBehaviour {
@@ -7,16 +8,18 @@ public class EnemySpawning : MonoBehaviour {
     private GameObject[,] grid;
     private int spawnInterval = 2;
 
-	// Use this for initialization
-	void Start ()
+
+    // Use this for initialization
+    void Start ()
     {
         grid = GameObject.Find("GameGrid").GetComponent<GameGrid>().getGrid();
         StartCoroutine(spawningInterval());
+        
     }
 
     public IEnumerator spawningInterval()
     {
-        SpawnBaddie(doBaddieOrder());
+        SpawnBaddie(generateLevels(List.));
         yield return new WaitForSeconds((Random.value * 3) + spawnInterval); //spawn interval
         StartCoroutine(spawningInterval()); //restart ienum
     }
@@ -32,11 +35,12 @@ public class EnemySpawning : MonoBehaviour {
             Goonie.transform.SetParent(gameObject.transform); //less clutter if you can close the GOtree, also keeps them all together
             Goonie.GetComponent<WhatBaddieDo>().EnemyType(type);
     }
-    private string doBaddieOrder()
+    private List<string[]> generateLevels()
     {
-        string[] baddies = { "Boss", "Assasin", "Knight", "Mother", "Bonus", "Default"};
-        //                      0        1         2         3         4          5
-        var holdMeDaddy = (Random.value * baddies.Length);
-        return baddies[4];
+        List<string[]> Levels = new List<string[]>();
+        string[] Level0 = new string[] { "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Boss" }; Levels.Add(Level0);
+        string[] Level1 = new string[] { "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Boss" }; Levels.Add(Level1);
+        string[] Level2 = new string[] { "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Boss" }; Levels.Add(Level2);
+        return Levels;
     }
 }
