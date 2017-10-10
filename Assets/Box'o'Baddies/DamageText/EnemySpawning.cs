@@ -2,26 +2,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class EnemySpawning : MonoBehaviour {
 
     public GameObject Enemies;
     private GameObject[,] grid;
     private int spawnInterval = 2;
-
+    List<string[]> Levels = new List<string[]>();
 
     // Use this for initialization
     void Start ()
     {
         grid = GameObject.Find("GameGrid").GetComponent<GameGrid>().getGrid();
+        generateLevels();
         StartCoroutine(spawningInterval());
-        
     }
 
     public IEnumerator spawningInterval()
     {
-        SpawnBaddie(generateLevels(List.));
-        yield return new WaitForSeconds((Random.value * 3) + spawnInterval); //spawn interval
-        StartCoroutine(spawningInterval()); //restart ienum
+        for (int i = 0; i < Levels[0].Length; i++)
+        {
+            yield return new WaitForSeconds(spawnInterval); //spawn interval
+            SpawnBaddie((Levels[0])[i]);
+        }
     }
 
     public void SpawnBaddie(string type)
@@ -35,12 +38,11 @@ public class EnemySpawning : MonoBehaviour {
             Goonie.transform.SetParent(gameObject.transform); //less clutter if you can close the GOtree, also keeps them all together
             Goonie.GetComponent<WhatBaddieDo>().EnemyType(type);
     }
-    private List<string[]> generateLevels()
+
+    private void generateLevels()
     {
-        List<string[]> Levels = new List<string[]>();
-        string[] Level0 = new string[] { "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Boss" }; Levels.Add(Level0);
+        string[] Level0 = new string[] { "Mother", "Assasin", "Knight", "Bonus", "Default", "Default", "Default", "Default", "Default", "Boss" }; Levels.Add(Level0);
         string[] Level1 = new string[] { "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Boss" }; Levels.Add(Level1);
         string[] Level2 = new string[] { "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Boss" }; Levels.Add(Level2);
-        return Levels;
     }
 }

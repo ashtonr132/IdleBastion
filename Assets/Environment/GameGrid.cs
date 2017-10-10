@@ -17,7 +17,7 @@ public class GameGrid : MonoBehaviour {
             {
                 grid[x, y] = GameObject.CreatePrimitive(PrimitiveType.Plane);
                 Destroy(grid[x, y].GetComponent<MeshCollider>());
-                grid[x, y].transform.rotation = new Quaternion(0, 180, 0, 0); //for somea reason textures display upside down on unityies defualt Planes?
+                grid[x, y].transform.rotation = new Quaternion(0, 180, 0, 0); //for somea reason textures display upside down on unity's default Planes?
                 var textrRan = Random.value;
                 if (textrRan > 0.95f)
                 {

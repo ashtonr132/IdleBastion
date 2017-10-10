@@ -84,7 +84,7 @@ public class WhatBaddieDo : MonoBehaviour
         }
     }
 
-        public void EnemyType(string type)
+    public void EnemyType(string type)
     {
         idString = type;
         switch (type)
