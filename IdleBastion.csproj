@@ -63,7 +63,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Box&apos;o&apos;Baddies\DamageText\EnemySpawning.cs" />
+    <Compile Include="Assets\Box&apos;o&apos;Baddies\Generic Baddy\EnemySpawning.cs" />
     <Compile Include="Assets\Box&apos;o&apos;Baddies\Generic Baddy\WhatBaddieDo.cs" />
     <Compile Include="Assets\Environment\GameGrid.cs" />
     <Compile Include="Assets\GameManagerStuff.cs" />

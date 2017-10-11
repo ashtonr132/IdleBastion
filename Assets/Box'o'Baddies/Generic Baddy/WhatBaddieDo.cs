@@ -11,6 +11,7 @@ public class WhatBaddieDo : MonoBehaviour
     public GameObject DamageTextParent;
     private GameObject canvas;
     private GameManagerStuff gameManager;
+    private EnemySpawning eSp;
 
     // Use this for initialization
     void Start()
@@ -18,22 +19,22 @@ public class WhatBaddieDo : MonoBehaviour
         currentHP = maxHP;
         canvas = GameObject.Find("Canvas");
         gameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
+        eSp = GameObject.Find("EnemyController").GetComponent<EnemySpawning>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        doMovement();
+        DoMovement();
 
         if (Input.GetMouseButtonDown(0))
         {
             RaycastHit hit; //ray stuff for damage text popups
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if ((Physics.Raycast(ray, out hit)))
+            if ((Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)))
             {
                 if (hit.transform == transform) //is the ray hitting this transform?
                 {
-                    currentHP = currentHP + gameManager.DamageDealt/armourVal;
+                    currentHP += gameManager.DamageDealt/armourVal;
                     GameObject DamageTextInstance = (GameObject)Instantiate(DamageTextParent, Input.mousePosition - canvas.transform.localPosition + new Vector3(75 + Random.Range(-0.5f, 0.5f), Random.Range(-0.5f, 0.5f), Random.Range(-0.5f, 0.5f)), Quaternion.identity);
                     DamageTextInstance.transform.GetChild(0).GetComponent<Text>().text = (Mathf.Round((gameManager.DamageDealt / armourVal) * Mathf.Pow(10.0f, (float)2)) / Mathf.Pow(10.0f, (float)2)).ToString(); //set text to displayup to two deicmal places only
                     DamageTextInstance.transform.SetParent(canvas.transform, false); //text objects display via canvas
@@ -46,8 +47,8 @@ public class WhatBaddieDo : MonoBehaviour
         {
             if (transform.GetComponent<WhatBaddieDo>().idString == "Mother")
             {
-                GameObject.Find("EnemyController").GetComponent<EnemySpawning>().SpawnBaddie("Child", transform.position + Vector3.right * 3);
-                GameObject.Find("EnemyController").GetComponent<EnemySpawning>().SpawnBaddie("Child", transform.position + Vector3.left * 3);
+                eSp.SpawnBaddie("Child", transform.position + Vector3.right * 3);
+                eSp.SpawnBaddie("Child", transform.position + Vector3.left * 3);
             }
             
             Destroy(gameObject);
@@ -67,10 +68,10 @@ public class WhatBaddieDo : MonoBehaviour
         }
         else if (col.gameObject.GetComponent<WhatBaddieDo>())
         {
-            Physics.IgnoreCollision(col.transform.GetComponent<Collider>(), transform.GetComponent<Collider>(), true); // for now ignore all other enemies, later make them change movement out of the way
+            // make them change movement out of the way
         }
     }
-    private void doMovement()
+    private void DoMovement()
     {
         if(idString == "Bonus")
         {
@@ -96,7 +97,7 @@ public class WhatBaddieDo : MonoBehaviour
                 armourVal = 3; //min 1
                 gameObject.transform.localScale = Vector3.one * 25f;
                 gameObject.GetComponent<Renderer>().material.color = Color.red;
-                gameObject.name = ("Boss " + gameObject.transform.parent.childCount);
+                gameObject.name = ("Boss");
                 break;
 
             case "Assasin":
@@ -106,7 +107,7 @@ public class WhatBaddieDo : MonoBehaviour
                 armourVal = 1; //min 1
                 gameObject.transform.localScale = Vector3.one * 6f;
                 gameObject.GetComponent<Renderer>().material.color = Color.yellow;
-                gameObject.name = ("Assasin " + gameObject.transform.parent.childCount);
+                gameObject.name = ("Assasin");
                 break;
 
             case "Knight":
@@ -116,7 +117,7 @@ public class WhatBaddieDo : MonoBehaviour
                 armourVal = 2.5f; //min 1
                 gameObject.transform.localScale = Vector3.one * 12f;
                 gameObject.GetComponent<Renderer>().material.color = Color.gray;
-                gameObject.name = ("Knight " + gameObject.transform.parent.childCount);
+                gameObject.name = ("Knight");
                 break;
 
             case "Mother":
@@ -126,7 +127,7 @@ public class WhatBaddieDo : MonoBehaviour
                 armourVal = 1; //min 1
                 gameObject.transform.localScale = Vector3.one * 10f;
                 gameObject.GetComponent<Renderer>().material.color = new Color32(255, 181, 197, 0); // pink1
-                gameObject.name = ("Mother " + gameObject.transform.parent.childCount);
+                gameObject.name = ("Mother");
                 break;
 
             case "Bonus":
@@ -136,10 +137,9 @@ public class WhatBaddieDo : MonoBehaviour
                 armourVal = 1; //min 1
                 gameObject.transform.localScale = Vector3.one * 8f;
                 gameObject.GetComponent<Renderer>().material.color = Color.black;
-                gameObject.name = ("Bonus" + gameObject.transform.parent.childCount);
+                gameObject.name = ("Bonus");
 
-                GameObject BonusParent = new GameObject();
-                BonusParent.gameObject.name = gameObject.name;
+                GameObject BonusParent = new GameObject(gameObject.name);
                 BonusParent.gameObject.transform.SetParent(gameObject.transform.parent);
                 gameObject.transform.SetParent(BonusParent.transform);
                 break;
@@ -163,7 +163,7 @@ public class WhatBaddieDo : MonoBehaviour
                     moveSpeed = 10;
                 }
                 gameObject.GetComponent<Renderer>().material.color = childColVal;
-                gameObject.name = ("Child " + gameObject.transform.parent.childCount);
+                gameObject.name = ("Child");
                 break;
 
             default:
@@ -172,7 +172,7 @@ public class WhatBaddieDo : MonoBehaviour
                 enemyValue = 1;
                 armourVal = 1; //min 1
                 gameObject.transform.localScale = Vector3.one * 10f;
-                gameObject.name = ("GenericBoringBaddie " + gameObject.transform.parent.childCount);
+                gameObject.name = ("GenericBoringBaddie");
                 break;
         }
     }

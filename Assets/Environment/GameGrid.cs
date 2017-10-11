@@ -11,13 +11,14 @@ public class GameGrid : MonoBehaviour {
     {
         grid = new GameObject[Width, Height];
         gameGrid = GameObject.Find("GameGrid");
+        Mesh mesh = DoMesh();
         for (int x = 0; x < Width; x++)
         {
             for (int y = 0; y < Height; y++)
             {
-                grid[x, y] = GameObject.CreatePrimitive(PrimitiveType.Plane);
-                Destroy(grid[x, y].GetComponent<MeshCollider>());
-                grid[x, y].transform.rotation = new Quaternion(0, 180, 0, 0); //for somea reason textures display upside down on unity's default Planes?
+                grid[x, y] = new GameObject("GridPiece " + x + (" , ") + y, typeof(MeshFilter), typeof(MeshRenderer));
+                grid[x, y].GetComponent<MeshFilter>().mesh = mesh;
+                grid[x, y].transform.localScale *= 10;
                 var textrRan = Random.value;
                 if (textrRan > 0.95f)
                 {
@@ -36,18 +37,15 @@ public class GameGrid : MonoBehaviour {
                     grid[x, y].GetComponent<Renderer>().material = Textures[2]; //plain grass
                 }
                 grid[x, y].transform.SetParent(gameGrid.transform);
-                grid[x, y].transform.name = ("GridPiece " + x + (" , ") + y); //naming convention
                 grid[x, y].transform.position = new Vector3(grid[x, y].transform.position.x + (x * 10), 0, grid[x, y].transform.position.y + (y * 10)); //grid spacing, coords* dimensions of grid pieces
+                grid[x, y].transform.Rotate(90,0,0);
                 //add building script for towers
             }
         }
-        GameObject killZone = GameObject.CreatePrimitive(PrimitiveType.Cube); //create a cube
-        Destroy(killZone.GetComponent<Renderer>()); // makes invisible
+        GameObject killZone = new GameObject("KillZone", typeof(Rigidbody), typeof(BoxCollider)); //create a cube
         killZone.transform.SetParent(gameGrid.transform); //Parent this as part of the GameGrid
-        killZone.transform.name = "KillZone";
         killZone.transform.position = grid[5, 0].transform.position - new Vector3(-5, 0, 5); //where murder zone go?
         killZone.transform.localScale += new Vector3(120, 100, 1); //big ol murder zone
-        killZone.AddComponent<Rigidbody>();
         killZone.GetComponent<Rigidbody>().useGravity = false;
         killZone.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ 
                                                        | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezePositionZ;
@@ -56,5 +54,22 @@ public class GameGrid : MonoBehaviour {
     public GameObject[,] getGrid() //pass a grid ref
     {
         return grid;
+    }
+
+    private Mesh DoMesh()
+    {
+        int[] myTriangles = { 0, 3, 1, 0, 2, 3 };
+        Vector3[] myVertices = { new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(1, 1, 0) }; //Mesh Verticies
+        Vector2[] myUVs = { new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 1), new Vector2(1, 1) }; // Plane UVMaps
+        Mesh mesh = new Mesh()
+        {
+            name = "PlanarMesh",
+            vertices = myVertices,
+            triangles = myTriangles,
+            uv = myUVs
+        };
+        mesh.RecalculateNormals();
+        mesh.Optimize();
+        return mesh;
     }
 }
