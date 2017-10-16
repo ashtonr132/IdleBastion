@@ -4,7 +4,7 @@ using System;
 
 public class TowerBehaviour : MonoBehaviour {
 
-    private int Damage = -1, Cost = 10, Range = 50, ProjectileSpeed = 5, Accuracy;
+    private int Damage, Cost, Range, ProjectileSpeed, Accuracy;
     private float FireRate = 0.25f;
     private GameObject enemyController;
     private GameObject target = null;
@@ -66,14 +66,19 @@ public class TowerBehaviour : MonoBehaviour {
         }
         StartCoroutine(Fire());
     }
-    private void SetTowerType(String type)
+    public void SetTowerType(String type)
     {
         switch (type)
         {
             case "Fire":
+                Damage = -1; Cost = 150; Range = 50; ProjectileSpeed = 5; // Accuracy;
+                transform.GetChild(0).GetComponent<MeshRenderer>().material.color = Color.red;
                 break;
+
             default:
-                break;
+                Damage = -1; Cost = 100; Range = 50; ProjectileSpeed = 5; // Accuracy;
+                transform.GetChild(0).GetComponent<MeshRenderer>().material.color = new Color32(100, 50, 0, 255); 
+                    break;
         }
     }
     public int GetDamage()

@@ -10,7 +10,6 @@ public class BuildingControls : MonoBehaviour
     private CreateGameGrid CGG;
     private Vector3 indPlacement;
     private GameManagerStuff gameManager;
-    private string[] TowerType;
 
     // Use this for initialization
     void Start()
@@ -18,7 +17,6 @@ public class BuildingControls : MonoBehaviour
         CGG = gameObject.GetComponent<CreateGameGrid>();
         gameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
         grid = CGG.GetGrid();
-        TowerType[0] = "Default";
     }
 
     // Update is called once per frame
@@ -26,7 +24,6 @@ public class BuildingControls : MonoBehaviour
     {
         if (indicator != null)
         {
-            //TowerType[(int)(Input.GetAxis("Mouse ScrollWheel") * 10)];
             indicator.GetComponent<MeshRenderer>().material.color = Color.Lerp(Color.black, Color.white, Mathf.PingPong(Time.time, 1)); //indicator flashing
             float scaler = (Mathf.PingPong(Time.time, 1) + 9)/10; //scaler value of between 0.9 to 1 and back
             indicator.transform.localScale = new Vector3(scaler, scaler, 1); //pulsing scale
@@ -43,7 +40,11 @@ public class BuildingControls : MonoBehaviour
                     if (indicator.transform.parent.Find("Tower") == null) //is square built on already?
                     {
                         GameObject Tower = gameManager.AssignComponents("Tower", ((GameObject)Resources.Load("Construction/Tower")).transform.GetChild(0).GetComponent<MeshFilter>().sharedMesh, (Material)Resources.Load("Construction/TowerMat"), true);
+                        GameObject TowerRoof = gameManager.AssignComponents("TowerRoof", ((GameObject)Resources.Load("Construction/TowerRoof")).transform.GetChild(0).GetComponent<MeshFilter>().sharedMesh, new Material(Shader.Find("Standard")), false);
+                        TowerRoof.transform.position = Tower.transform.position + new Vector3(0, (int)(Tower.GetComponent<Collider>().bounds.size.y/4), 0);
+                        TowerRoof.transform.SetParent(Tower.transform);
                         Tower.AddComponent<TowerBehaviour>();
+                        Tower.GetComponent<TowerBehaviour>().SetTowerType("Default");
                         Tower.GetComponent<Rigidbody>().isKinematic = true;
                         Tower.transform.position = indicator.transform.position;
                         Tower.transform.SetParent(indicator.transform.parent);

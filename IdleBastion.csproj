@@ -65,7 +65,7 @@
   <ItemGroup>
     <Compile Include="Assets\Resources\Box&apos;o&apos;Baddies\EnemySpawning.cs" />
     <Compile Include="Assets\Resources\Box&apos;o&apos;Baddies\WhatBaddieDo.cs" />
-    <Compile Include="Assets\Resources\Construction\TowerBehaviour.cs" />
+    <Compile Include="Assets\Resources\Construction\TowerBehaviour1.cs" />
     <Compile Include="Assets\Resources\Environment\BuildingControls.cs" />
     <Compile Include="Assets\Resources\Environment\CreateGameGrid.cs" />
     <Compile Include="Assets\Resources\GameManagerStuff.cs" />

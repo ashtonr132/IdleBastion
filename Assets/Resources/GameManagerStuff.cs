@@ -28,9 +28,17 @@ public class GameManagerStuff : MonoBehaviour
         }
         return outGO;
     }
-    public void PushToEventLog(string inString)
+    public void PushToEventLog(string inString) // put text into the scrolling game log
     {
         Text EventLog = GameObject.Find("Canvas").transform.GetChild(0).GetChild(0).GetChild(0).GetComponent<Text>();
         EventLog.text = "\n" + inString + EventLog.text;
+    }
+    public void DisplayValue(string Display, Vector3 DisplayPosition) // popup text
+    {
+        GameObject DamageTextInstance = (GameObject)Instantiate((GameObject)Resources.Load("Box'o'Baddies/DamageValueParent"), Camera.main.WorldToScreenPoint(DisplayPosition), Quaternion.identity); //Position is wrong
+        DamageTextInstance.transform.GetChild(0).GetComponent<Text>().text = Display; //set text to displayup to two deicmal places only
+        DamageTextInstance.transform.SetParent(GameObject.Find("Canvas").transform, false); //text objects display via canvas
+        AnimatorClipInfo[] clipInfo = DamageTextInstance.transform.GetChild(0).GetComponent<Animator>().GetCurrentAnimatorClipInfo(0); // how long is text bounce anim?
+        Destroy(DamageTextInstance, clipInfo[0].clip.length);//kill after bounce anim ends
     }
 }

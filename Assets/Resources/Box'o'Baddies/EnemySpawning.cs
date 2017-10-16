@@ -56,15 +56,6 @@ public class EnemySpawning : MonoBehaviour
 
     private void generateStages()
     {
-        string[] Stage0 = new string[] { "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Boss" }; Stages.Add(Stage0);
-        string[] Stage1 = new string[] { "Default", "Default", "Knight", "Default", "Default", "Knight", "Default", "Default", "Knight", "Boss" }; Stages.Add(Stage1);
-        string[] Stage2 = new string[] { "Default", "Assasin", "Assasin", "Default", "Assasin", "Default", "Default", "Assasin", "Default", "Boss" }; Stages.Add(Stage2);
-        string[] Stage3 = new string[] { "Mother", "Default", "Mother", "Default", "Default", "Mother", "Default", "Mother", "Default", "Boss" }; Stages.Add(Stage3);
-        string[] Stage4 = new string[] { "Default", "Default", "Default", "Default", "Bonus", "Default", "Default", "Default", "Default", "Boss" }; Stages.Add(Stage4);
-        string[] Stage5 = new string[] { "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Default", "Boss" }; Stages.Add(Stage5);
-        string[] Stage6 = new string[] { "Default", "Default", "Knight", "Default", "Default", "Knight", "Default", "Default", "Knight", "Boss" }; Stages.Add(Stage6);
-        string[] Stage7 = new string[] { "Default", "Assasin", "Mother", "Default", "Assasin", "Default", "Default", "Assasin", "Default", "Boss" }; Stages.Add(Stage7);
-        string[] Stage8 = new string[] { "Mother", "Knight", "Mother", "Default", "Default", "Mother", "Knight", "Mother", "Knight", "Boss" }; Stages.Add(Stage8);
-        string[] Stage9 = new string[] { "Boss", "Boss", "Mother", "Assasin", "Bonus", "Assasin", "Bonus", "Mother", "Knight", "Boss" }; Stages.Add(Stage9);
+        string[] Stage0 = new string[] { "Charger", "Mother", "Assasin", "Knight", "Shielded", "Regenerator", "Bonus", "Undead", "Default", "Boss" }; Stages.Add(Stage0);
     }
 }
