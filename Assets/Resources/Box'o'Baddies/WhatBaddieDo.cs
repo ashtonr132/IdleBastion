@@ -114,7 +114,7 @@ public class WhatBaddieDo : MonoBehaviour
             // Almost Invisible
             // Support, Healing 
             case "Boss":
-                ReAssignTypeVal(Color.red, 5, 10, 25, 3, 25, type);
+                ReAssignTypeVal(Color.red, 10, 10, 25, 3, 25, type);
                 break;
 
             case "Assasin":
