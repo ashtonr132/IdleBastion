@@ -63,10 +63,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Box&apos;o&apos;Baddies\Generic Baddy\EnemySpawning.cs" />
-    <Compile Include="Assets\Box&apos;o&apos;Baddies\Generic Baddy\WhatBaddieDo.cs" />
-    <Compile Include="Assets\Environment\GameGrid.cs" />
-    <Compile Include="Assets\GameManagerStuff.cs" />
+    <Compile Include="Assets\Resources\Box&apos;o&apos;Baddies\EnemySpawning.cs" />
+    <Compile Include="Assets\Resources\Box&apos;o&apos;Baddies\WhatBaddieDo.cs" />
+    <Compile Include="Assets\Resources\Construction\TowerBehaviour.cs" />
+    <Compile Include="Assets\Resources\Environment\BuildingControls.cs" />
+    <Compile Include="Assets\Resources\Environment\CreateGameGrid.cs" />
+    <Compile Include="Assets\Resources\GameManagerStuff.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
