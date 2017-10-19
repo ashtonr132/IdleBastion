@@ -40,6 +40,12 @@ public class WhatBaddieDo : MonoBehaviour
             gameObject.GetComponent<Renderer>().material.color = Color.Lerp(new Color32(250, 128, 114, 255), new Color32(0, 128, 0, 255), Mathf.PingPong(Time.time, 1.5f));
             StandardMovement();
         }
+        else if (IdString == "Phasing")
+        {
+            Color col = GetComponent<Renderer>().material.color;
+            GetComponent<Renderer>().material.color = new Color(col.r, col.g, col.b, Mathf.PingPong(Time.time/2, 1));
+            StandardMovement();
+        }
         else
         {
             StandardMovement();
@@ -138,8 +144,12 @@ public class WhatBaddieDo : MonoBehaviour
             //Support, all units on screen take less damage, this unit takes 2x damage
             //Cloner, clones itself
             //Teleporter, teleports itself when clicked, back in the y axis and any direction in the xaxis
-            //Fazing
+            //Phasing
             //Support, Healing 
+            case "Phasing":
+                ReAssignTypeVal(Color.black, type, maxhp: 4, enemyvalue: 15);
+                gameObject.GetComponent<Renderer>().material = (Material)(Resources.Load("Box'o'Baddies/FragmentMat"));
+                break;
             case "Boss":
                 ReAssignTypeVal(Color.red, type, 10, 10, 250, 3, 25);
                 break;

@@ -58,7 +58,6 @@ public class EnemySpawning : MonoBehaviour
     }
     private void GenerateStages()
     {
-        string[] Stage0 = new string[] {"Default", "Default", "Default", "Default", "Default", "Default"}; Stages.Add(Stage0); //Planned Stages
-        string[] Stage1 = new string[] {"Default", "Default", "Default", "Default", "Default", "Default"}; Stages.Add(Stage1);
+        string[] Stage0 = new string[] {"Phasing", "Default"}; Stages.Add(Stage0); //Planned Stages
     }
 }
