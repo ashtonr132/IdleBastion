@@ -43,7 +43,7 @@ public class CreateGameGrid : MonoBehaviour
         GameObject killZone = new GameObject("KillZone", typeof(Rigidbody), typeof(BoxCollider)); //create a cube
         killZone.transform.SetParent(transform); //Parent this as part of the GameGrid
         killZone.transform.position = Grid[5, 0].transform.position - new Vector3(-5, 0, 5); //where murder zone go?
-        killZone.transform.localScale += new Vector3(120, 100, 1); //big ol murder zone
+        killZone.transform.localScale += new Vector3(150, 100, 1); //big ol murder zone
         killZone.GetComponent<Rigidbody>().useGravity = false;
         killZone.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ
                                                        | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezePositionZ;

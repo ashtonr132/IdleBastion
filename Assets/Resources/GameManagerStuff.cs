@@ -5,10 +5,12 @@ using UnityEngine.UI;
 public class GameManagerStuff : MonoBehaviour
 {
     public int CurrencyAmount = 0, TotalLifeTimeClicks = 0, EnemiesKilled = 0, TowersBuilt = 0, Population = 1, DamageDealt = -1;
-    private GameObject Canvas;
+    private GameObject Canvas, FragmentEncapsulation;
     private void Start()
     {
         Canvas = GameObject.Find("Canvas");
+        FragmentEncapsulation = new GameObject("FragmentEncapsulation");
+        FragmentEncapsulation.transform.SetParent(GameObject.Find("EnemyController").transform);
     }
     void Update()
     {
@@ -51,6 +53,7 @@ public class GameManagerStuff : MonoBehaviour
             Fragment.GetComponent<Renderer>().material.color = new Color(GameObjectPos.GetComponent<Renderer>().material.color.r, GameObjectPos.GetComponent<Renderer>().material.color.g, GameObjectPos.GetComponent<Renderer>().material.color.b, 1);
             Destroy(Fragment.GetComponent<MeshCollider>()); Fragment.AddComponent<BoxCollider>(); Fragment.AddComponent<Rigidbody>();
             Fragment.GetComponent<Rigidbody>().AddForce(Random.Range(-500f, 500f), Random.Range(-1000, 1000), Random.Range(-500, 500));
+            Fragment.transform.SetParent(FragmentEncapsulation.transform);
             StartCoroutine(FadeOut(Fragment, 0.15f));
         }
     }

@@ -5,47 +5,49 @@ using UnityEngine;
 public class EnemySpawning : MonoBehaviour
 {
     private GameObject[,] Grid;
-    private int SpawnInterval = 2, OnStage = 0;
+    private int OnStage = 0;
     private GameManagerStuff GameManager;
     List<string[]> Stages = new List<string[]>();
 
-    //Use this for initialization
-    void Start()
+    void Start() //Use this for initialization
     {
         Grid = GameObject.Find("GameGrid").GetComponent<CreateGameGrid>().GetGrid();
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
-        generateStages();
-        StartCoroutine(Spawning(SpawnInterval));
+        GenerateStages();
+        StartCoroutine(Spawning("NextStage", 3)); //Start stageloop ienum
     }
-    private void Update()
+    public IEnumerator Spawning(string Pass, float Interval)
     {
-        if (transform.childCount == 0) //is Stage finished completed?
+        if (Pass == "SpawnStage") //spawn enemies in onstage stage
         {
-            if(!(OnStage >= Stages.Count -1))
+            for (int i = 0; i <= Stages[OnStage].Length - 1; i++)
             {
-                OnStage++;
-                StartCoroutine(Spawning(SpawnInterval));
-                GameManager.PushToEventLog("Stage " + OnStage);
+                yield return new WaitForSeconds(Interval);
+                SpawnBaddie(Stages[OnStage][i]);
+                if (i == Stages[OnStage][i].Length - 2)
+                {
+                    StartCoroutine(Spawning("NextStage", 3));
+                }
             }
-            else
+            OnStage++;
+        }
+        else if(Pass == "NextStage") //prepare for next stage
+        {
+            Interval += GameObject.Find("EnemyController").transform.childCount;
+            for(int i = 0; i < Interval; i++)
             {
-                //start infinite mode
+                yield return new WaitForSeconds(1);
+                GameManager.PushToEventLog("Next Stage in " + (Interval - i).ToString());
             }
+            GameManager.PushToEventLog("Stage " + OnStage.ToString());
+            StartCoroutine(Spawning("SpawnStage", 1));
         }
     }
-    private IEnumerator Spawning(int Interval)
-    {
-        for (int i = 0; i < Stages[OnStage].Length; i++)
-        {
-            SpawnBaddie((Stages[OnStage])[i]);
-            yield return new WaitForSeconds(Interval); //spawn interval
-        }
-    }
-    public void SpawnBaddie(string type) 
+    public void SpawnBaddie(string type)
     {
         SpawnBaddie(type, Grid[Random.Range(0, 11), 19].transform.position);
     }
-    public void SpawnBaddie(string type, Vector3 spawnPos)
+    public void SpawnBaddie(string type, Vector3 spawnPos) //Quick setup for objects 
     {
         GameObject tempMesh = GameObject.CreatePrimitive(PrimitiveType.Cube);
         GameObject Enemy = GameManager.AssignComponents(type, tempMesh.GetComponent<MeshFilter>().mesh, new Material(Shader.Find("Unlit/Color")), true); Destroy(tempMesh);
@@ -54,8 +56,9 @@ public class EnemySpawning : MonoBehaviour
         Enemy.AddComponent<WhatBaddieDo>();
         Enemy.GetComponent<WhatBaddieDo>().EnemyType(type);
     }
-    private void generateStages()
+    private void GenerateStages()
     {
-        string[] Stage0 = new string[] {"Default" }; Stages.Add(Stage0);
+        string[] Stage0 = new string[] {"Default", "Default", "Default", "Default", "Default", "Default"}; Stages.Add(Stage0); //Planned Stages
+        string[] Stage1 = new string[] {"Default", "Default", "Default", "Default", "Default", "Default"}; Stages.Add(Stage1);
     }
 }
