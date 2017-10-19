@@ -1,45 +1,43 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class WhatBaddieDo : MonoBehaviour
 {
-    private int enemyValue, DamageDealt;
-    private float moveSpeed, maxHP, armourVal, currentHP;
-    private string idString;
+    private int EnemyValue, DamageDealt;
+    private float MoveSpeed, MaxHP, ArmourVal, CurrentHP;
+    private string IdString;
     private GameManagerStuff GameManager;
-    private EnemySpawning eSp;
+    private EnemySpawning ESp;
 
     // Use this for initialization
     void Start()
     {
-        currentHP = maxHP;
+        CurrentHP = MaxHP;
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
-        eSp = GameObject.Find("EnemyController").GetComponent<EnemySpawning>();
-        if (idString == "Regenerator")
+        ESp = GameObject.Find("EnemyController").GetComponent<EnemySpawning>();
+        if (IdString == "Regenerator")
         {
             StartCoroutine(Healing());
         }
     }
 
-    // Update is called once per frame
+    //Update is called once per frame
     void Update()
     {
-        if (idString == "Bonus") // Movement
+        if (IdString == "Bonus") //Movement
         {
             transform.Rotate(Vector3.right * UnityEngine.Random.value * 5);
             gameObject.GetComponent<Renderer>().material.color = Color.Lerp(Color.yellow, Color.black, Mathf.PingPong(Time.time, 1)); //color pulsing
             StandardMovement();
         }
-        else if (idString == "Charger")
+        else if (IdString == "Charger")
         {
-            var currentMoveSpeed = Mathf.PingPong(Time.time *100, moveSpeed);
+            var currentMoveSpeed = Mathf.PingPong(Time.time *100, MoveSpeed);
             gameObject.GetComponent<Rigidbody>().velocity = -Vector3.forward * currentMoveSpeed; //enemy movement
         }
-        else if(idString == "Regenerator")
+        else if(IdString == "Regenerator")
         {
-            gameObject.GetComponent<Renderer>().material.color = Color.Lerp(new Color32(250, 128, 114, 255), new Color32(0, 128, 0, 255), Mathf.PingPong(Time.time, 3));
+            gameObject.GetComponent<Renderer>().material.color = Color.Lerp(new Color32(250, 128, 114, 255), new Color32(0, 128, 0, 255), Mathf.PingPong(Time.time, 1.5f));
             StandardMovement();
         }
         else
@@ -53,74 +51,77 @@ public class WhatBaddieDo : MonoBehaviour
             {
                 if (hit.transform == transform) //is the ray hitting this transform?
                 {
-                    currentHP += GameManager.DamageDealt / armourVal;
-                    GameManager.DisplayValue((GameManager.DamageDealt / armourVal).ToString(), gameObject.transform.position);
+                    CurrentHP += GameManager.DamageDealt / ArmourVal;
+                    GameManager.DisplayValue((GameManager.DamageDealt / ArmourVal).ToString(), gameObject.transform.position);
+                    GameManager.FragmentEnemy(gameObject, 1, 1);
                 }
             }
         }
-        if (currentHP <= 0)
+        if (CurrentHP <= 0)
         {
-            if (idString == "Mother")
+            if (IdString == "Mother")
             {
-                eSp.SpawnBaddie("Child", transform.position + Vector3.right * 3);
-                eSp.SpawnBaddie("Child", transform.position + Vector3.left * 3);
+                ESp.SpawnBaddie("Child", transform.position + Vector3.right * 3);
+                ESp.SpawnBaddie("Child", transform.position + Vector3.left * 3);
                 Destroy(gameObject);
             }
-            else if(idString == "Undead")
+            else if(IdString == "Undead")
             {
                 gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
                 Vector3 ResPos = gameObject.transform.position;
                 gameObject.transform.position = new Vector3(gameObject.transform.position.x, Mathf.Lerp(gameObject.transform.position.y - 5, gameObject.transform.position.y, Time.deltaTime), gameObject.transform.position.z);
                 if (gameObject.transform.position.y > ResPos.y)
                 {
-                    idString = "Default";
+                    IdString = "Default";
                     GetComponent<Renderer>().material.color = new Color32(152, 251, 152, 255);
                 }
             }
             else
             {
+                GameManager.FragmentEnemy(gameObject, 10, 15);
                 Destroy(gameObject);
             }
-            GameManager.CurrencyAmount += enemyValue;
+            GameManager.CurrencyAmount += EnemyValue;
         }
     }
 
     private void StandardMovement()
     {
-        gameObject.GetComponent<Rigidbody>().velocity = -Vector3.forward * moveSpeed; //enemy movement
+        gameObject.GetComponent<Rigidbody>().velocity = -Vector3.forward * MoveSpeed; //enemy movement
     }
 
     void OnCollisionEnter(Collision col)
     {
         if (col.transform.name == "KillZone")
         {
-            Destroy(gameObject); // obj let through
+            GameManager.FragmentEnemy(gameObject, 10, 15);
+            Destroy(gameObject); //obj let through
             if (GameManager.Population > 1)
             {
                 GameManager.Population--;
             }
         }
-        else if (col.gameObject.GetComponent<WhatBaddieDo>())
+        /*else if (col.gameObject.GetComponent<WhatBaddieDo>().IdString == "Blah")
         {
-            // make them change movement out of the way
-        }
+            //make them change movement out of the way
+        }*/
     }
 
     void OnTriggerEnter(Collider col)
     {
         if (col.transform.name == "Projectile")
         {
-            if (idString == "Shielded")
+            if (IdString == "Shielded") //this unit is immune to tower damage
             {
                 DamageDealt = 0;
             }
             else
             {
-                DamageDealt = col.transform.parent.GetComponent<TowerBehaviour>().GetDamage();
+                DamageDealt = col.transform.parent.GetComponent<TowerBehaviour>().GetDamage(); //get tower damage
             }
-            currentHP += DamageDealt / armourVal;
+            CurrentHP += DamageDealt / ArmourVal;
             GameManager.DisplayValue(DamageDealt.ToString(), gameObject.transform.position);
-            
+            GameManager.FragmentEnemy(gameObject, 1, 1);
             if (col.gameObject != null) //destroy the bullet on impact, it also has a destroy timer hence the if isnotnull
             {
                 Destroy(col.gameObject);
@@ -130,15 +131,15 @@ public class WhatBaddieDo : MonoBehaviour
 
     public void EnemyType(string type) //typecast statistics
     {
-        idString = type;
+        IdString = type;
         switch (type)
         {
-            // Support, Speed Boost for the next enemy spawned
-            // Support, all units on screen take less damage, this unit takes 2x damage
-            // Cloner, clones itself
-            // Teleporter, teleports itself when clicked
-            // Almost Invisible
-            // Support, Healing 
+            //Support, Speed Boost for the next enemy spawned
+            //Support, all units on screen take less damage, this unit takes 2x damage
+            //Cloner, clones itself
+            //Teleporter, teleports itself when clicked, back in the y axis and any direction in the xaxis
+            //Fazing
+            //Support, Healing 
             case "Boss":
                 ReAssignTypeVal(Color.red, type, 10, 10, 250, 3, 25);
                 break;
@@ -196,10 +197,10 @@ public class WhatBaddieDo : MonoBehaviour
     }
     private void ReAssignTypeVal(Color32 Color, string name = "DefaultBaddie", int movespeed = 15, int maxhp = 10, int enemyvalue = 10, float armourvalue = 1, int scalar = 10)
     {
-        moveSpeed = movespeed;
-        maxHP = maxhp;
-        enemyValue = enemyvalue;
-        armourVal = armourvalue;
+        MoveSpeed = movespeed;
+        MaxHP = maxhp;
+        EnemyValue = enemyvalue;
+        ArmourVal = armourvalue;
         gameObject.transform.localScale *= scalar;
         gameObject.name = name;
         gameObject.GetComponent<Renderer>().material.color = Color;
@@ -208,7 +209,7 @@ public class WhatBaddieDo : MonoBehaviour
     private IEnumerator Healing()
     {
         yield return new WaitForSeconds(3); //spawn interval
-        currentHP++;
+        CurrentHP++;
         GameManager.DisplayValue("+1", gameObject.transform.position);
         StartCoroutine(Healing());
     }

@@ -1,61 +1,61 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class EnemySpawning : MonoBehaviour
 {
-    private GameObject[,] grid;
-    private int spawnInterval = 2, onStage = 0;
-    private GameManagerStuff gameManager;
+    private GameObject[,] Grid;
+    private int SpawnInterval = 2, OnStage = 0;
+    private GameManagerStuff GameManager;
     List<string[]> Stages = new List<string[]>();
 
-    // Use this for initialization
+    //Use this for initialization
     void Start()
     {
-        grid = GameObject.Find("GameGrid").GetComponent<CreateGameGrid>().GetGrid();
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
+        Grid = GameObject.Find("GameGrid").GetComponent<CreateGameGrid>().GetGrid();
+        GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
         generateStages();
-        StartCoroutine(SpawningInterval());
+        StartCoroutine(Spawning(SpawnInterval));
     }
     private void Update()
     {
         if (transform.childCount == 0) //is Stage finished completed?
         {
-            onStage++;
-            gameManager.PushToEventLog("Stage" + onStage);
-            StartCoroutine(SpawningInterval());
+            if(!(OnStage >= Stages.Count -1))
+            {
+                OnStage++;
+                StartCoroutine(Spawning(SpawnInterval));
+                GameManager.PushToEventLog("Stage " + OnStage);
+            }
+            else
+            {
+                //start infinite mode
+            }
         }
     }
-
-    private IEnumerator SpawningInterval()
+    private IEnumerator Spawning(int Interval)
     {
-        for (int i = 0; i < Stages[0].Length; i++)
+        for (int i = 0; i < Stages[OnStage].Length; i++)
         {
-            SpawnBaddie((Stages[onStage])[i]);
-            yield return new WaitForSeconds(spawnInterval); //spawn interval
+            SpawnBaddie((Stages[OnStage])[i]);
+            yield return new WaitForSeconds(Interval); //spawn interval
         }
     }
-
     public void SpawnBaddie(string type) 
     {
-        SpawnBaddie(type, grid[Random.Range(0, 11), 19].transform.position + Vector3.up * 10);
+        SpawnBaddie(type, Grid[Random.Range(0, 11), 19].transform.position);
     }
-
     public void SpawnBaddie(string type, Vector3 spawnPos)
     {
         GameObject tempMesh = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        GameObject Enemy = gameManager.AssignComponents(type, tempMesh.GetComponent<MeshFilter>().mesh, new Material(Shader.Find("Unlit/Color")), true); Destroy(tempMesh);
-        Enemy.transform.position = spawnPos;
+        GameObject Enemy = GameManager.AssignComponents(type, tempMesh.GetComponent<MeshFilter>().mesh, new Material(Shader.Find("Unlit/Color")), true); Destroy(tempMesh);
+        Enemy.transform.position = spawnPos + new Vector3(0, Enemy.GetComponent<Renderer>().bounds.size.y/2 + 1, 0);
         Enemy.transform.SetParent(gameObject.transform); //Orderliness
         Enemy.AddComponent<WhatBaddieDo>();
-        Collider col2 = Enemy.AddComponent<BoxCollider>();
-        col2.isTrigger = true;  
         Enemy.GetComponent<WhatBaddieDo>().EnemyType(type);
     }
-
     private void generateStages()
     {
-        string[] Stage0 = new string[] { "Charger", "Mother", "Assasin", "Knight", "Shielded", "Regenerator", "Bonus", "Undead", "Default", "Boss" }; Stages.Add(Stage0);
+        string[] Stage0 = new string[] {"Default" }; Stages.Add(Stage0);
     }
 }
