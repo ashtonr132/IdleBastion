@@ -16,7 +16,7 @@ public class CreateGameGrid : MonoBehaviour
                 Grid[x, y] = new GameObject("GridPiece " + x + (" , ") + y, typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider));
                 Grid[x, y].GetComponent<MeshFilter>().mesh = mesh;
                 Grid[x, y].GetComponent<MeshCollider>().convex = true;
-                Grid[x, y].GetComponent<MeshCollider>().sharedMesh = mesh; //Meshcoll needed for raycast identifying
+                Grid[x, y].GetComponent<MeshCollider>().sharedMesh = mesh; //Mesh coll needed for raycast identifying
                 Grid[x, y].transform.localScale *= 10;
                 var textrRan = Random.value;
                 if (textrRan > 0.95f)
@@ -36,20 +36,20 @@ public class CreateGameGrid : MonoBehaviour
                     Grid[x, y].GetComponent<MeshRenderer>().material = (Material)Resources.Load("Environment/PlainGrassMat");
                 }
                 Grid[x, y].transform.SetParent(transform);
-                Grid[x, y].transform.position = new Vector3(Grid[x, y].transform.position.x + (x * 10), 0, Grid[x, y].transform.position.y + (y * 10)); //grid spacing, coords* dimensions of grid pieces
+                Grid[x, y].transform.position = new Vector3(Grid[x, y].transform.position.x + (x * 10), 0, Grid[x, y].transform.position.y + (y * 10)); //Grid spacing, coords* dimensions of grid pieces
                 Grid[x, y].transform.Rotate(90, 0, 0);
             }
         }
-        GameObject killZone = new GameObject("KillZone", typeof(Rigidbody), typeof(BoxCollider)); //create a cube
+        GameObject killZone = new GameObject("KillZone", typeof(Rigidbody), typeof(BoxCollider)); //Create a cube
         killZone.transform.SetParent(transform); //Parent this as part of the GameGrid
-        killZone.transform.position = Grid[5, 0].transform.position - new Vector3(-5, 0, 5); //where murder zone go?
-        killZone.transform.localScale += new Vector3(150, 100, 1); //big ol murder zone
+        killZone.transform.position = Grid[5, 0].transform.position - new Vector3(-5, 0, 5); //Where murder zone go?
+        killZone.transform.localScale += new Vector3(150, 100, 1); //Destroy Enemies that reach the end of the level
         killZone.GetComponent<Rigidbody>().useGravity = false;
         killZone.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ
                                                        | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezePositionZ;
     }
 
-    public GameObject[,] GetGrid() //pass a grid ref
+    public GameObject[,] GetGrid() //Pass grid ref
     {
         return Grid;
     }

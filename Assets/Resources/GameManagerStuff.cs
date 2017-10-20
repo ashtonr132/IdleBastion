@@ -6,6 +6,7 @@ public class GameManagerStuff : MonoBehaviour
 {
     public int CurrencyAmount = 0, TotalLifeTimeClicks = 0, EnemiesKilled = 0, TowersBuilt = 0, Population = 1, DamageDealt = -1;
     private GameObject Canvas, FragmentEncapsulation;
+
     private void Start()
     {
         Canvas = GameObject.Find("Canvas");
@@ -20,7 +21,7 @@ public class GameManagerStuff : MonoBehaviour
         }
     }
 
-    public GameObject AssignComponents(string name, Mesh mesh, Material mat, bool needsRB = false) //setting up new game objects quickly
+    public GameObject AssignComponents(string name, Mesh mesh, Material mat, bool needsRB = false) //Setting up new game objects quickly
     {
         GameObject outGO = new GameObject(name, typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider));
         outGO.GetComponent<MeshFilter>().mesh = mesh;
@@ -35,7 +36,7 @@ public class GameManagerStuff : MonoBehaviour
         }
         return outGO;
     }
-    public void PushToEventLog(string inString) //put text into the scrolling game log
+    public void PushToEventLog(string inString) //Put text into the scrolling game log
     {
         Text EventLog = GameObject.Find("Canvas").transform.GetChild(0).GetChild(0).GetChild(0).GetComponent<Text>();
         EventLog.text = "\n" + inString + EventLog.text;
@@ -57,15 +58,15 @@ public class GameManagerStuff : MonoBehaviour
             StartCoroutine(FadeOut(Fragment, 0.15f));
         }
     }
-    public void DisplayValue(string Display, Vector3 DisplayPosition) //popup text
+    public void DisplayValue(string Display, Vector3 DisplayPosition) //Popup text
     {
-        DisplayPosition = Camera.main.WorldToScreenPoint(DisplayPosition) + (Vector3.right * 70) + (new Vector3(Random.value, Random.value, Random.value)) * 15; //world coords to pixel coords for the ui canvas plus an angle skew adjustment and a random 15 wide random change
-        Vector2 canvasCentre = new Vector2(Canvas.GetComponent<RectTransform>().sizeDelta.x / 2, Canvas.GetComponent<RectTransform>().sizeDelta.y / 2); //canvas centre for reference
+        DisplayPosition = Camera.main.WorldToScreenPoint(DisplayPosition) + (Vector3.right * 70) + (new Vector3(Random.value, Random.value, Random.value)) * 15; //World coords to pixel coords for the ui canvas plus an angle skew adjustment and a random 15 wide random change
+        Vector2 canvasCentre = new Vector2(Canvas.GetComponent<RectTransform>().sizeDelta.x / 2, Canvas.GetComponent<RectTransform>().sizeDelta.y / 2); //Canvas centre for reference
         GameObject DamageTextInstance = (GameObject)Instantiate((GameObject)Resources.Load("Box'o'Baddies/DamageValueParent"), -(canvasCentre - new Vector2(DisplayPosition.x, DisplayPosition.y)), Quaternion.identity); //Position is wrong
         DamageTextInstance.transform.GetChild(0).GetComponent<Text>().text = Display;
-        DamageTextInstance.transform.SetParent(Canvas.transform, false); //text objects display via canvas
-        AnimatorClipInfo[] clipInfo = DamageTextInstance.transform.GetChild(0).GetComponent<Animator>().GetCurrentAnimatorClipInfo(0); //how long is text bounce anim?
-        Destroy(DamageTextInstance, clipInfo[0].clip.length); //destroy after bounce anim ends
+        DamageTextInstance.transform.SetParent(Canvas.transform, false); //Text objects display via canvas
+        AnimatorClipInfo[] clipInfo = DamageTextInstance.transform.GetChild(0).GetComponent<Animator>().GetCurrentAnimatorClipInfo(0); //How long is text bounce anim?
+        Destroy(DamageTextInstance, clipInfo[0].clip.length); //Destroy after bounce anim ends
     }
     public IEnumerator FadeOut(GameObject FadeMe, float WaitTime)
     {

@@ -18,7 +18,7 @@ public class EnemySpawning : MonoBehaviour
     }
     public IEnumerator Spawning(string Pass, float Interval)
     {
-        if (Pass == "SpawnStage") //spawn enemies in onstage stage
+        if (Pass == "SpawnStage") //Spawn enemies in onstage stage
         {
             for (int i = 0; i <= Stages[OnStage].Length - 1; i++)
             {
@@ -31,9 +31,9 @@ public class EnemySpawning : MonoBehaviour
             }
             OnStage++;
         }
-        else if(Pass == "NextStage") //prepare for next stage
+        else if(Pass == "NextStage") //Prepare for next stage
         {
-            Interval += GameObject.Find("EnemyController").transform.childCount;
+            Interval += GameObject.Find("EnemyController").transform.childCount - 1; //Contains one non enemy child
             for(int i = 0; i < Interval; i++)
             {
                 yield return new WaitForSeconds(1);
@@ -53,11 +53,11 @@ public class EnemySpawning : MonoBehaviour
         GameObject Enemy = GameManager.AssignComponents(type, tempMesh.GetComponent<MeshFilter>().mesh, new Material(Shader.Find("Unlit/Color")), true); Destroy(tempMesh);
         Enemy.transform.position = spawnPos + new Vector3(0, Enemy.GetComponent<Renderer>().bounds.size.y/2 + 1, 0);
         Enemy.transform.SetParent(gameObject.transform); //Orderliness
-        Enemy.AddComponent<WhatBaddieDo>();
-        Enemy.GetComponent<WhatBaddieDo>().EnemyType(type);
+        Enemy.AddComponent<EnemyFunction>();
+        Enemy.GetComponent<EnemyFunction>().EnemyType(type);
     }
     private void GenerateStages()
     {
-        string[] Stage0 = new string[] {"Phasing", "Default"}; Stages.Add(Stage0); //Planned Stages
+        string[] Stage0 = new string[] {"Charger" }; Stages.Add(Stage0); //Planned Stages
     }
 }

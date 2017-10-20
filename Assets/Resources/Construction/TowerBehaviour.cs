@@ -9,9 +9,8 @@ public class TowerBehaviour : MonoBehaviour {
     private GameObject EnemyController;
     private GameObject Target = null;
     private GameManagerStuff GameManager;
-
-    //Use this for initialization
-    void Start()
+    
+    void Start() //Use this for initialization
     {
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
         EnemyController = GameObject.Find("EnemyController");
@@ -26,8 +25,7 @@ public class TowerBehaviour : MonoBehaviour {
         }
         StartCoroutine(Fire());
     }
-    //Update is called once per frame
-    void Update()
+    void Update()//Update is called once per frame
     {
         foreach (Transform enemy in EnemyController.transform)
         {

@@ -63,8 +63,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Resources\Box&apos;o&apos;Baddies\EnemyFunction.cs" />
     <Compile Include="Assets\Resources\Box&apos;o&apos;Baddies\EnemySpawning.cs" />
-    <Compile Include="Assets\Resources\Box&apos;o&apos;Baddies\WhatBaddieDo.cs" />
     <Compile Include="Assets\Resources\Construction\TowerBehaviour.cs" />
     <Compile Include="Assets\Resources\Environment\BuildingControls.cs" />
     <Compile Include="Assets\Resources\Environment\CreateGameGrid.cs" />
