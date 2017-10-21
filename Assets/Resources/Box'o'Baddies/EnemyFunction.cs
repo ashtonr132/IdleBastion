@@ -5,60 +5,65 @@ public class EnemyFunction : MonoBehaviour
 {
     private int EnemyValue, DamageDealt;
     private float MoveSpeed, MaxHP, ArmourVal, CurrentHP;
-    private string IdString;
     private GameManagerStuff GameManager;
     private EnemySpawning ESp;
     private Vector3 ResPos;
-    
+    public enum EnemyID
+    {
+        Default, Teleport, Phasing,
+        Boss, Assasin, Knight,
+        Mother, Shielded, Charger,
+        Regenerator, Undead, Bonus,
+        Child,
+        Resurrecting //resurrecting is a state for undead do not directly call
+    }
+    public EnemyID CurrentEnemyID;
     void Start()  // Use this for initialization
     {
         CurrentHP = MaxHP;
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
         ESp = GameObject.Find("EnemyController").GetComponent<EnemySpawning>();
-        if (IdString == "Regenerator")
+        if (CurrentEnemyID == EnemyID.Regenerator)
         {
             StartCoroutine(EnemyActions("Healing"));
         }
     }
     void Update() //Update is called once per frame
     {
-        if (IdString == "Bonus") //Movement
+        switch (CurrentEnemyID)
         {
+            case EnemyID.Bonus:
             transform.Rotate(Vector3.right * UnityEngine.Random.value * 5);
             gameObject.GetComponent<Renderer>().material.color = Color.Lerp(Color.yellow, Color.black, Mathf.PingPong(Time.time, 1)); //Color pulsing
             StandardMovement();
-        }
-        else if (IdString == "Charger")
-        {
-            var currentMoveSpeed = Mathf.PingPong(Time.time *100, (MoveSpeed / CurrentHP)*10);
+                break;
+            case EnemyID.Charger:
+            var currentMoveSpeed = Mathf.PingPong(Time.time * 100, (MoveSpeed / CurrentHP -1) * MaxHP);
             gameObject.GetComponent<Rigidbody>().velocity = -Vector3.forward * currentMoveSpeed; //Enemy movement
-        }
-        else if(IdString == "Regenerator")
-        {
+                break;
+            case EnemyID.Regenerator:
             gameObject.GetComponent<Renderer>().material.color = Color.Lerp(new Color32(250, 128, 114, 255), new Color32(0, 128, 0, 255), Mathf.PingPong(Time.time, 1.5f));
             StandardMovement();
-        }
-        else if (IdString == "Phasing")
-        {
+                break;
+            case EnemyID.Phasing:
             Color col = GetComponent<Renderer>().material.color;
-            GetComponent<Renderer>().material.color = new Color(col.r, col.g, col.b, Mathf.PingPong(Time.time/2, 1));
-            StandardMovement(); 
-        }
-        else if (IdString == "Resurrecting")
-        {
-            Collider col = GetComponent<Collider>();
-            col.enabled = false;
-            gameObject.transform.position = new Vector3(ResPos.x, Mathf.Lerp((ResPos + (Vector3.down * 30)).y, ResPos.y, Time.time/20), ResPos.z);
+            GetComponent<Renderer>().material.color = new Color(col.r, col.g, col.b, Mathf.PingPong(Time.time / 2, 1));
+            StandardMovement();
+                break;
+            case EnemyID.Resurrecting:
+            Collider GOCollider = GetComponent<Collider>();
+            GOCollider.enabled = false;
+            gameObject.transform.position = new Vector3(ResPos.x, Mathf.Lerp((ResPos + (Vector3.down * 30)).y, ResPos.y, Time.time / 20), ResPos.z);
             if (gameObject.transform.position.y >= ResPos.y)
-             {
-                IdString = "Default";
-                col.enabled = true;
+            {
+                CurrentEnemyID = EnemyID.Default;
+                GOCollider.enabled = true;
                 gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezeRotationY;
             }
-        }
-        else
-        {
+                break;
+            default:
             StandardMovement();
+                break;
         }
         if (Input.GetMouseButtonDown(0))
         {
@@ -70,22 +75,26 @@ public class EnemyFunction : MonoBehaviour
                     CurrentHP += GameManager.DamageDealt / ArmourVal;
                     GameManager.DisplayValue((GameManager.DamageDealt / ArmourVal).ToString(), gameObject.transform.position);
                     GameManager.FragmentEnemy(gameObject, 1, 1);
+                    if(CurrentEnemyID == EnemyID.Teleport)
+                    {
+                        gameObject.transform.position = gameObject.transform.position.ParameterChange(X:(Random.Range(0, 110)), Z:(Random.Range(gameObject.transform.position.z, 190)));
+                    }
                 }
             }
         }
         if (CurrentHP <= 0)
         {
-            if (IdString == "Mother")
+            if (CurrentEnemyID == EnemyID.Mother)
             {
-                ESp.SpawnBaddie("Child", transform.position + Vector3.right * 3);
-                ESp.SpawnBaddie("Child", transform.position + Vector3.left * 3);
+                ESp.SpawnBaddie(EnemyID.Child, transform.position + Vector3.right * 3);
+                ESp.SpawnBaddie(EnemyID.Child, transform.position + Vector3.left * 3);
                 Destroy(gameObject);
             }
-            else if (IdString == "Undead")
+            else if (CurrentEnemyID == EnemyID.Undead)
             {
                 ResPos = gameObject.transform.position;
                 CurrentHP = MaxHP;
-                IdString = "Resurrecting";
+                CurrentEnemyID = EnemyID.Resurrecting;
                 gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
                 GetComponent<Renderer>().material.color = new Color32(152, 251, 152, 255);
                 GameManager.FragmentEnemy(gameObject, 10, 15);
@@ -104,7 +113,7 @@ public class EnemyFunction : MonoBehaviour
     }
     void OnCollisionEnter(Collision col)
     {
-        if (col.transform.name == "KillZone")
+        if (System.String.Equals(col.transform.name, "KillZone"))
         {
             GameManager.FragmentEnemy(gameObject, 10, 15);
             Destroy(gameObject); //obj let through
@@ -113,16 +122,16 @@ public class EnemyFunction : MonoBehaviour
                 GameManager.Population--;
             }
         }
-        /*else if (col.gameObject.GetComponent<WhatBaddieDo>().IdString == "Blah")
+        /*else if (col.gameObject.GetComponent<WhatBaddieDo>().CurrentEnemyID == Default)
         {
             //make them change movement out of the way
         }*/
     }
     void OnTriggerEnter(Collider col)
     {
-        if (col.transform.name == "Projectile")
+        if (System.String.Equals(col.transform.name, "Projectile"))
         {
-            if (IdString == "Shielded") //This unit is immune to tower damage
+            if (CurrentEnemyID == EnemyID.Shielded) //This unit is immune to tower damage
             {
                 DamageDealt = 0;
             }
@@ -139,59 +148,56 @@ public class EnemyFunction : MonoBehaviour
             }
         }
     }
-    public void EnemyType(string type) //Typecast statistics
+    public void EnemyType(EnemyID id) //Typecast statistics
     {
-        IdString = type;
-        switch (type)
+        CurrentEnemyID = id;
+        switch (CurrentEnemyID)
         {
-            //Support, all units on screen take less damage, this unit takes 2x damage
-            //Cloner, clones itself
-            //Teleporter, teleports itself when clicked, back in the y axis and any direction in the xaxis
-            case "Phasing":
-                ReAssignTypeVal(Color.black, type, maxhp: 4, enemyvalue: 15);
+            case EnemyID.Teleport:
+                ReAssignTypeVal(Color.white, id.ToString(), movespeed:20, enemyvalue:20);
+                break;
+            case EnemyID.Phasing:
+                ReAssignTypeVal(Color.black, id.ToString(), maxhp: 4, enemyvalue: 15);
                 gameObject.GetComponent<Renderer>().material = (Material)(Resources.Load("Box'o'Baddies/FragmentMat"));
                 break;
-            /*case "Teleport":
-                ReAssignTypeVal(Color.red, type, 10, 10, 250, 3, 25);
-                break; */
-            case "Boss":
-                ReAssignTypeVal(Color.red, type, 10, 10, 250, 3, 25);
+            case EnemyID.Boss:
+                ReAssignTypeVal(Color.red, id.ToString(), 10, enemyvalue:250, armourvalue:3, scalar:25);
                 break;
-            case "Assasin":
-                ReAssignTypeVal(Color.yellow, type, 35, 5, 20, 1, 6);
+            case EnemyID.Assasin:
+                ReAssignTypeVal(Color.yellow, id.ToString(), 35, 5, 20, scalar:6);
                 break;
-            case "Knight":
-                ReAssignTypeVal(Color.grey, type, 10, 8, 30, 2.5f, 12);
+            case EnemyID.Knight:
+                ReAssignTypeVal(Color.grey, id.ToString(), 10, 8, 30, 2.5f, 12);
                 break;
-            case "Mother":
-                ReAssignTypeVal(new Color32(255, 181, 197, 255), type, 12, 5, 10, 1, 10);
+            case EnemyID.Mother:
+                ReAssignTypeVal(new Color32(255, 181, 197, 255), id.ToString(), 12, 5);
                 break;
-            case "Shielded":
-                ReAssignTypeVal(new Color32(0, 0, 128, 255), type, 12, 5, 15, 1, 10);
+            case EnemyID.Shielded:
+                ReAssignTypeVal(new Color32(0, 0, 128, 255), id.ToString(), 12, 5, 15);
                 break;
-            case "Charger":
-                ReAssignTypeVal(new Color32(0, 255, 255, 255), type, 40);
+            case EnemyID.Charger:
+                ReAssignTypeVal(new Color32(0, 255, 255, 255), id.ToString(), 50);
                 break;
-            case "Regenerator":
-                ReAssignTypeVal(new Color32(0, 128, 0, 255), type, enemyvalue: 45);
+            case EnemyID.Regenerator:
+                ReAssignTypeVal(new Color32(0, 128, 0, 255), id.ToString(), enemyvalue: 45);
                 break;
-            case "Undead":
-                ReAssignTypeVal(new Color32(65, 90, 190, 255), type, enemyvalue: 10);
+            case EnemyID.Undead:
+                ReAssignTypeVal(new Color32(65, 90, 190, 255), id.ToString(), enemyvalue: 10);
                 break;
-            case "Bonus":
-                ReAssignTypeVal(Color.black, type, 100, 2, 200, 1, 8);
+            case EnemyID.Bonus:
+                ReAssignTypeVal(Color.black, id.ToString(), 100, 2, 200, 1, 8);
                 GameObject BonusParent = new GameObject(gameObject.name);
                 BonusParent.gameObject.transform.SetParent(gameObject.transform.parent);
                 gameObject.transform.SetParent(BonusParent.transform);
                 break;
-            case "Child":
+            case EnemyID.Child:
                 if (UnityEngine.Random.value > .5f)
                 {
-                    ReAssignTypeVal(new Color32(135, 206, 255, 0), type, 7, 15, 2, 0.5f, 4);
+                    ReAssignTypeVal(new Color32(135, 206, 255, 0), id.ToString(), 7, 15, 2, 0.5f, 4);
                 }
                 else
                 {
-                    ReAssignTypeVal(new Color32(255, 105, 180, 0), type, 10, 10, 1, 0.5f, 4);
+                    ReAssignTypeVal(new Color32(255, 105, 180, 0), id.ToString(), 10, 10, 1, 0.5f, 4);
                 }
                 break;
             default:
@@ -212,7 +218,7 @@ public class EnemyFunction : MonoBehaviour
     }
     private IEnumerator EnemyActions(string Pass, Vector3 Pos = new Vector3())
     {
-        if (Pass == "Healing")
+        if (System.String.Equals(Pass, "Healing"))
         {
             yield return new WaitForSeconds(3); //spawn interval
             CurrentHP++;

@@ -28,7 +28,7 @@ public class GameManagerStuff : MonoBehaviour
         outGO.GetComponent<MeshRenderer>().material = mat;
         outGO.GetComponent<MeshCollider>().sharedMesh = mesh;
         outGO.GetComponent<MeshCollider>().convex = true;
-        if (needsRB == true)
+        if (needsRB)
         {
             outGO.AddComponent<Rigidbody>();
             outGO.GetComponent<Rigidbody>().useGravity = false;
@@ -81,5 +81,13 @@ public class GameManagerStuff : MonoBehaviour
         {
             Destroy(FadeMe);
         }
+    }
+}
+
+public static class HelperClass
+{
+    public static Vector3 ParameterChange(this Vector3 Vec, float? X = null, float? Y = null, float? Z = null) //Quick rewrite of readonly variable usings optional parameters as nullables to keep uneeded variables the same
+    {
+        return new Vector3(X ?? Vec.x, Y ?? Vec.y,  Z ?? Vec.z); //If is not referred called with, is null, if is null usses the preexisting value
     }
 }
