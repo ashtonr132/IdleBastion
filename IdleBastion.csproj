@@ -69,6 +69,7 @@
     <Compile Include="Assets\Resources\Environment\BuildingControls.cs" />
     <Compile Include="Assets\Resources\Environment\CreateGameGrid.cs" />
     <Compile Include="Assets\Resources\GameManagerStuff.cs" />
+    <Compile Include="Assets\Resources\Town\TownControls.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

@@ -3,12 +3,13 @@ using UnityEngine;
 
 public class EnemyFunction : MonoBehaviour
 {
-    private int EnemyValue, DamageDealt;
-    private float MoveSpeed, MaxHP, ArmourVal, CurrentHP;
+    internal int EnemyValue, DamageDealt;
+    internal float MoveSpeed, MaxHP, ArmourVal, CurrentHP;
     private GameManagerStuff GameManager;
     private EnemySpawning ESp;
+    private TownControls Town;
     private Vector3 ResPos;
-    public enum EnemyID
+    internal enum EnemyID
     {
         Default, Teleport, Phasing,
         Boss, Assasin, Knight,
@@ -17,12 +18,13 @@ public class EnemyFunction : MonoBehaviour
         Child,
         Resurrecting //resurrecting is a state for undead do not directly call
     }
-    public EnemyID CurrentEnemyID;
+    internal EnemyID CurrentEnemyID;
     void Start()  // Use this for initialization
     {
         CurrentHP = MaxHP;
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
         ESp = GameObject.Find("EnemyController").GetComponent<EnemySpawning>();
+        Town = GameObject.Find("Town").GetComponent<TownControls>();
         if (CurrentEnemyID == EnemyID.Regenerator)
         {
             StartCoroutine(EnemyActions("Healing"));
@@ -72,8 +74,8 @@ public class EnemyFunction : MonoBehaviour
             {
                 if (hit.transform == transform) //Is the ray hitting this transform?
                 {
-                    CurrentHP += GameManager.DamageDealt / ArmourVal;
-                    GameManager.DisplayValue((GameManager.DamageDealt / ArmourVal).ToString(), gameObject.transform.position);
+                    CurrentHP += GameManager.Damage / ArmourVal;
+                    GameManager.DisplayValue((GameManager.Damage / ArmourVal).ToString(), gameObject.transform.position);
                     GameManager.FragmentEnemy(gameObject, 1, 1);
                     if(CurrentEnemyID == EnemyID.Teleport)
                     {
@@ -104,7 +106,7 @@ public class EnemyFunction : MonoBehaviour
                 GameManager.FragmentEnemy(gameObject, 10, 15);
                 Destroy(gameObject);
             }
-            GameManager.CurrencyAmount += EnemyValue;
+            Town.Currency += EnemyValue;
         }
     }
     private void StandardMovement()
@@ -117,9 +119,9 @@ public class EnemyFunction : MonoBehaviour
         {
             GameManager.FragmentEnemy(gameObject, 10, 15);
             Destroy(gameObject); //obj let through
-            if (GameManager.Population > 1)
+            if (Town.Population > 1)
             {
-                GameManager.Population--;
+                Town.Population--;
             }
         }
         /*else if (col.gameObject.GetComponent<WhatBaddieDo>().CurrentEnemyID == Default)
@@ -148,7 +150,7 @@ public class EnemyFunction : MonoBehaviour
             }
         }
     }
-    public void EnemyType(EnemyID id) //Typecast statistics
+    internal void EnemyType(EnemyID id) //Typecast statistics
     {
         CurrentEnemyID = id;
         switch (CurrentEnemyID)
@@ -205,7 +207,7 @@ public class EnemyFunction : MonoBehaviour
                 break;
         }
     }
-    private void ReAssignTypeVal(Color32 Color, string name = "DefaultBaddie", int movespeed = 15, int maxhp = 10, int enemyvalue = 10, float armourvalue = 1, int scalar = 10)
+    internal void ReAssignTypeVal(Color32 Color, string name = "DefaultBaddie", int movespeed = 15, int maxhp = 10, int enemyvalue = 10, float armourvalue = 1, int scalar = 10)
     {
         MoveSpeed = movespeed;
         MaxHP = maxhp;
@@ -216,7 +218,7 @@ public class EnemyFunction : MonoBehaviour
         gameObject.GetComponent<Renderer>().material.color = Color;
         gameObject.transform.position += Vector3.up * gameObject.GetComponent<Renderer>().bounds.size.y / 2;
     }
-    private IEnumerator EnemyActions(string Pass, Vector3 Pos = new Vector3())
+    internal IEnumerator EnemyActions(string Pass, Vector3 Pos = new Vector3())
     {
         if (System.String.Equals(Pass, "Healing"))
         {

@@ -38,7 +38,7 @@ public class BuildingControls : MonoBehaviour
                         TowerRoof.transform.position = Tower.transform.position + new Vector3(0, (int)(Tower.GetComponent<Collider>().bounds.size.y/4), -Tower.transform.position.z/2);
                         TowerRoof.transform.SetParent(Tower.transform);
                         Tower.AddComponent<TowerBehaviour>();
-                        Tower.GetComponent<TowerBehaviour>().SetTowerType("Default");
+                        Tower.GetComponent<TowerBehaviour>().SetTowerType(TowerBehaviour.TowerID.Default);
                         Tower.GetComponent<Rigidbody>().isKinematic = true;
                         Tower.transform.position = Indicator.transform.position;
                         Tower.transform.SetParent(Indicator.transform.parent);

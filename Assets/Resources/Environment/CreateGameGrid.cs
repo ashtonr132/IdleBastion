@@ -2,7 +2,7 @@
 
 public class CreateGameGrid : MonoBehaviour
 {
-    private int Width = 12, Height = 20;
+    internal int Width = 22, Height = 23;
     private GameObject[,] Grid;
 
     void Awake()
@@ -13,10 +13,10 @@ public class CreateGameGrid : MonoBehaviour
         {
             for (int y = 0; y < Height; y++)
             {
-                Grid[x, y] = new GameObject("GridPiece " + x + (" , ") + y, typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider));
+                Grid[x, y] = new GameObject("GridPiece " + x + (" , ") + y, typeof(MeshFilter), typeof(MeshRenderer), typeof(BoxCollider));
                 Grid[x, y].GetComponent<MeshFilter>().mesh = mesh;
-                Grid[x, y].GetComponent<MeshCollider>().convex = true;
-                Grid[x, y].GetComponent<MeshCollider>().sharedMesh = mesh; //Mesh coll needed for raycast identifying
+                Grid[x, y].GetComponent<BoxCollider>().center = new Vector3(0.5f, 0.5f, 0);
+                Grid[x, y].GetComponent<BoxCollider>().size = Grid[x, y].GetComponent<BoxCollider>().size.ParameterChange(Z: 0.1f);
                 Grid[x, y].transform.localScale *= 10;
                 var textrRan = Random.value;
                 if (textrRan > 0.95f)
@@ -42,19 +42,19 @@ public class CreateGameGrid : MonoBehaviour
         }
         GameObject killZone = new GameObject("KillZone", typeof(Rigidbody), typeof(BoxCollider)); //Create a cube
         killZone.transform.SetParent(transform); //Parent this as part of the GameGrid
-        killZone.transform.position = Grid[5, 0].transform.position - new Vector3(-5, 0, 5); //Where murder zone go?
-        killZone.transform.localScale += new Vector3(150, 100, 1); //Destroy Enemies that reach the end of the level
+        killZone.transform.position = new Vector3(110, 0, 50); //Where murder zone go?
+        killZone.transform.localScale += new Vector3(250, 100, 5); //Destroy Enemies that reach the end of the level
         killZone.GetComponent<Rigidbody>().useGravity = false;
         killZone.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ
                                                        | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezePositionZ;
     }
 
-    public GameObject[,] GetGrid() //Pass grid ref
+    internal GameObject[,] GetGrid() //Pass grid ref
     {
         return Grid;
     }
 
-    public Mesh DoMesh()
+    internal Mesh DoMesh()
     {
         int[] myTriangles = { 0, 3, 1, 0, 2, 3 };
         Vector3[] myVertices = { new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(1, 1, 0) }; //Mesh Verticies

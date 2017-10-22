@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class GameManagerStuff : MonoBehaviour
 {
-    public int CurrencyAmount = 0, TotalLifeTimeClicks = 0, EnemiesKilled = 0, TowersBuilt = 0, Population = 1, DamageDealt = -1;
+    internal int TotalLifeTimeClicks = 0, EnemiesKilled = 0, TowersBuilt = 0, Damage = -1;
     private GameObject Canvas, FragmentEncapsulation;
 
     private void Start()
@@ -15,13 +15,13 @@ public class GameManagerStuff : MonoBehaviour
     }
     void Update()
     {
+        GameObject.Find("Damage").transform.GetChild(0).GetComponent<Text>().text = Damage.ToString();
         if (Input.GetMouseButtonDown(0))
         {
             TotalLifeTimeClicks++;
         }
     }
-
-    public GameObject AssignComponents(string name, Mesh mesh, Material mat, bool needsRB = false) //Setting up new game objects quickly
+    internal GameObject AssignComponents(string name, Mesh mesh, Material mat, bool needsRB = false) //Setting up new game objects quickly
     {
         GameObject outGO = new GameObject(name, typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider));
         outGO.GetComponent<MeshFilter>().mesh = mesh;
@@ -36,12 +36,12 @@ public class GameManagerStuff : MonoBehaviour
         }
         return outGO;
     }
-    public void PushToEventLog(string inString) //Put text into the scrolling game log
+    internal void PushToEventLog(string inString) //Put text into the scrolling game log
     {
         Text EventLog = GameObject.Find("Canvas").transform.GetChild(0).GetChild(0).GetChild(0).GetComponent<Text>();
         EventLog.text = "\n" + inString + EventLog.text;
     }
-    public void FragmentEnemy(GameObject GameObjectPos, int FragMin, int FragMax)
+    internal void FragmentEnemy(GameObject GameObjectPos, int FragMin, int FragMax)
     {
         var num = Random.Range(FragMin, FragMax);
         for (int i = 0; i < num; i++)
@@ -58,7 +58,7 @@ public class GameManagerStuff : MonoBehaviour
             StartCoroutine(FadeOut(Fragment, 0.15f));
         }
     }
-    public void DisplayValue(string Display, Vector3 DisplayPosition) //Popup text
+    internal void DisplayValue(string Display, Vector3 DisplayPosition) //Popup text
     {
         DisplayPosition = Camera.main.WorldToScreenPoint(DisplayPosition) + (Vector3.right * 70) + (new Vector3(Random.value, Random.value, Random.value)) * 15; //World coords to pixel coords for the ui canvas plus an angle skew adjustment and a random 15 wide random change
         Vector2 canvasCentre = new Vector2(Canvas.GetComponent<RectTransform>().sizeDelta.x / 2, Canvas.GetComponent<RectTransform>().sizeDelta.y / 2); //Canvas centre for reference
@@ -68,7 +68,7 @@ public class GameManagerStuff : MonoBehaviour
         AnimatorClipInfo[] clipInfo = DamageTextInstance.transform.GetChild(0).GetComponent<Animator>().GetCurrentAnimatorClipInfo(0); //How long is text bounce anim?
         Destroy(DamageTextInstance, clipInfo[0].clip.length); //Destroy after bounce anim ends
     }
-    public IEnumerator FadeOut(GameObject FadeMe, float WaitTime)
+    internal IEnumerator FadeOut(GameObject FadeMe, float WaitTime)
     {
         Color PreFadeColor = FadeMe.GetComponent<Renderer>().material.color;
         yield return new WaitForSeconds(WaitTime);
@@ -83,10 +83,9 @@ public class GameManagerStuff : MonoBehaviour
         }
     }
 }
-
 public static class HelperClass
 {
-    public static Vector3 ParameterChange(this Vector3 Vec, float? X = null, float? Y = null, float? Z = null) //Quick rewrite of readonly variable usings optional parameters as nullables to keep uneeded variables the same
+    internal static Vector3 ParameterChange(this Vector3 Vec, float? X = null, float? Y = null, float? Z = null) //Quick rewrite of readonly variable usings optional parameters as nullables to keep uneeded variables the same
     {
         return new Vector3(X ?? Vec.x, Y ?? Vec.y,  Z ?? Vec.z); //If is not referred called with, is null, if is null usses the preexisting value
     }

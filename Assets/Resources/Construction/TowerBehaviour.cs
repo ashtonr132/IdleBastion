@@ -4,24 +4,36 @@ using System;
 
 public class TowerBehaviour : MonoBehaviour {
 
-    private int Damage = -1, Cost = 100, Range = 50, ProjectileSpeed = 5;
-    private float FireRate = 0.25f, Accuracy = 1.25f;
+    internal int Damage = -1, Cost = 100, Range = 50, ProjectileSpeed = 5;
+    internal float FireRate = 0.25f, Accuracy = 1.25f;
     private GameObject EnemyController;
     private GameObject Target = null;
     private GameManagerStuff GameManager;
-    
+    private TownControls Town;
+    internal enum TowerID
+    {
+        Blockade, IntermediateFireRate, IntermediateBalanced,
+        IntermediateDamage, Marksman, AdvancedFireRate,
+        AdvancedSpreadShotX3, AdvancedSpreadShotX5, AdvancedLargerProjectiles,
+        Explosive, Gatling, Contagion, ElementalAffliction, BasicSupport,
+        Agitation, VisualAcuity, Generator, Mine, Beam, Divarification,
+        Swarm, Assimilation, Water, Fire, Earth, Air, Plasma, Ice, Magma,
+        Terra, Lightning, BlackHole, Radiation, AreaEffect, Default
+    }
+    internal TowerID CurrentTowerID;
     void Start() //Use this for initialization
     {
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
         EnemyController = GameObject.Find("EnemyController");
-        if (GameManager.CurrencyAmount - Cost < 0)
+        Town = GameObject.Find("Town").GetComponent<TownControls>();
+        if (Town.Currency - Cost < 0)
         {
             GameManager.PushToEventLog("This exceeds youre current gold.");
             Destroy(gameObject);
         }
         else
         {
-            GameManager.CurrencyAmount -= Cost;
+            Town.Currency -= Cost;
         }
         StartCoroutine(Fire());
     }
@@ -64,77 +76,77 @@ public class TowerBehaviour : MonoBehaviour {
         }
         StartCoroutine(Fire());
     }
-    public void SetTowerType(String Type)
+    internal void SetTowerType(TowerID ID)
     {
-        switch (Type)
+        switch (ID)
         {
-            case "Blockade":
+            case TowerID.Blockade:
                 break;
-            case "IntermediateFireRate":
+            case TowerID.IntermediateFireRate:
                 break;
-            case "IntermediateBalanced":
+            case TowerID.IntermediateBalanced:
                 break;
-            case "IntermediateDamage":
+            case TowerID.IntermediateDamage:
                 break;
-            case "Marksman":
+            case TowerID.Marksman:
                 break;
-            case "AdvancedFireRate":
+            case TowerID.AdvancedFireRate:
                 break;
-            case "AdvancedSpreadShotX3":
+            case TowerID.AdvancedSpreadShotX3:
                 break;
-            case "AdvancedSpreadShotX5":
+            case TowerID.AdvancedSpreadShotX5:
                 break;
-            case "AdvancedLargerProjectiles":
+            case TowerID.AdvancedLargerProjectiles:
                 break;
-            case "Explosive":
+            case TowerID.Explosive:
                 break;
-            case "Gatling":
+            case TowerID.Gatling:
                 break;
-            case "Contagion":
+            case TowerID.Contagion:
                 break;
-            case "ElementalAffliction":
+            case TowerID.ElementalAffliction:
                 break;
-            case "BasicSupport":
+            case TowerID.BasicSupport:
                 break;
-            case "Agitation":
+            case TowerID.Agitation:
                 break;
-            case "VisualAcuity":
+            case TowerID.VisualAcuity:
                 break;
-            case "Generator":
+            case TowerID.Generator:
                 break;
-            case "Mine":
+            case TowerID.Mine:
                 break;
-            case "Beam":
+            case TowerID.Beam:
                 break;
-            case "Divarification":
+            case TowerID.Divarification:
                 break;
-            case "Swarm":
+            case TowerID.Swarm:
                 break;
-            case "Assimilation":
+            case TowerID.Assimilation:
                 break;
-            case "Water":
+            case TowerID.Water:
                 break;
-            case "Fire":
+            case TowerID.Fire:
                 break;
-            case "Earth":
+            case TowerID.Earth:
                 break;
-            case "Air":
+            case TowerID.Air:
                 break;
-            case "Plasma":
+            case TowerID.Plasma:
                 break;
-            case "Ice":
+            case TowerID.Ice:
                 break;
-            case "Magma":
+            case TowerID.Magma:
                 break;
-            case "Terra":
+            case TowerID.Terra:
                 break;
-            case "Lightning":
+            case TowerID.Lightning:
                 break;
-            case "BlackHole":
+            case TowerID.BlackHole:
                 break;
-            case "Radiation":
+            case TowerID.Radiation:
                 break;
-            case "AreaEffect":
+            case TowerID.AreaEffect:
                 break;
             default: //Basic
                 Damage = -1; Cost = 100; Range = 50; ProjectileSpeed = 5; FireRate = 0.25f; 
