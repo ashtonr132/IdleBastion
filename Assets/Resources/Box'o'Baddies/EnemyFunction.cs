@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class EnemyFunction : MonoBehaviour
@@ -79,7 +80,7 @@ public class EnemyFunction : MonoBehaviour
                     GameManager.FragmentEnemy(gameObject, 1, 1);
                     if(CurrentEnemyID == EnemyID.Teleport)
                     {
-                        gameObject.transform.position = gameObject.transform.position.ParameterChange(X:(Random.Range(0, 110)), Z:(Random.Range(gameObject.transform.position.z, 190)));
+                        gameObject.transform.position = gameObject.transform.position.ParameterChange(X:(UnityEngine.Random.Range(0, 110)), Z:(UnityEngine.Random.Range(gameObject.transform.position.z, 190)));
                     }
                 }
             }
@@ -115,7 +116,7 @@ public class EnemyFunction : MonoBehaviour
     }
     void OnCollisionEnter(Collision col)
     {
-        if (System.String.Equals(col.transform.name, "KillZone"))
+        if (String.Equals(col.transform.name, "KillZone"))
         {
             GameManager.FragmentEnemy(gameObject, 10, 15);
             Destroy(gameObject); //obj let through
