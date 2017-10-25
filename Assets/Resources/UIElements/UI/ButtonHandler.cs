@@ -10,12 +10,7 @@ public class ButtonHandler : MonoBehaviour
         foreach (Transform child in transform)
         {
             child.gameObject.GetComponent<Button>().onClick.AddListener(ToggleUI); //Add ref to onclick function
-            foreach (Transform butt in GetRelativeUI(child.gameObject).transform) //Dont Render any open ui on start
-            {
-                butt.gameObject.GetComponent<CanvasRenderer>().SetAlpha(0);
-                butt.GetChild(0).GetComponent<CanvasRenderer>().SetAlpha(0);
-            }
-            GetRelativeUI(child.gameObject).GetComponent<CanvasRenderer>().SetAlpha(0);
+            DisplayUi(GetRelativeUI(child.gameObject), 0);
         }
     }
     private void ToggleUI()
@@ -26,31 +21,17 @@ public class ButtonHandler : MonoBehaviour
             {
                 if (GetRelativeUI(child.gameObject).GetComponent<CanvasRenderer>().GetAlpha() == 0)
                 {
-                    foreach (Transform butt in GetRelativeUI(child.gameObject).transform) //Render this ui
-                    {
-                        butt.gameObject.GetComponent<CanvasRenderer>().SetAlpha(1);
-                        butt.GetChild(0).GetComponent<CanvasRenderer>().SetAlpha(1);
-                    }
-                    GetRelativeUI(child.gameObject).GetComponent<CanvasRenderer>().SetAlpha(1);
+                    DisplayUi(GetRelativeUI(child.gameObject), 1);
                 }
                 else
                 {
-                    foreach (Transform butt in GetRelativeUI(child.gameObject).transform) //Unless its already being rendered in which case dont
-                    {
-                        butt.gameObject.GetComponent<CanvasRenderer>().SetAlpha(0);
-                        butt.GetChild(0).GetComponent<CanvasRenderer>().SetAlpha(0);
-                    }
+                    DisplayUi(GetRelativeUI(child.gameObject), 0);
                     GetRelativeUI(child.gameObject).GetComponent<CanvasRenderer>().SetAlpha(0);
                 }
             }
             else
             {
-                foreach (Transform butt in GetRelativeUI(child.gameObject).transform) //Dont render the other ui'
-                {
-                    butt.gameObject.GetComponent<CanvasRenderer>().SetAlpha(0);
-                    butt.GetChild(0).GetComponent<CanvasRenderer>().SetAlpha(0);
-                }
-                GetRelativeUI(child.gameObject).GetComponent<CanvasRenderer>().SetAlpha(0);
+                DisplayUi(GetRelativeUI(child.gameObject), 0);
             }
         }
     }
@@ -63,5 +44,27 @@ public class ButtonHandler : MonoBehaviour
             charz[i] = chars[i];
         }
         return GameObject.Find(new string(charz));
+    }
+    private void DisplayUi(GameObject obj, int alpha)
+    {
+        obj.GetComponent<CanvasRenderer>().SetAlpha(alpha);
+        if(obj.transform.childCount > 0)
+        {
+            foreach(Transform trans in obj.transform)
+            {
+                DisplayUi(trans.gameObject, alpha);
+            }
+        }
+    }
+    internal bool UIIsActive()
+    { 
+        foreach(CanvasRenderer canvasrenderer in gameObject.GetComponentsInChildren<CanvasRenderer>())
+        {
+            if (canvasrenderer.GetAlpha() > 0)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
