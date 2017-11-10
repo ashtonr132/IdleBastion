@@ -42,7 +42,7 @@ public class BuildingControls : MonoBehaviour
                         Tower.GetComponent<Rigidbody>().isKinematic = true;
                         Tower.transform.position = Indicator.transform.position;
                         Tower.transform.SetParent(Indicator.transform.parent);
-                        GameManager.TowersBuilt++;
+                        GameManagerStuff.TowersBuilt++;
                     }
                     else
                     {

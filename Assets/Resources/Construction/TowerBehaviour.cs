@@ -9,7 +9,6 @@ public class TowerBehaviour : MonoBehaviour {
     private GameObject EnemyController;
     private GameObject Target = null;
     private GameManagerStuff GameManager;
-    private TownControls Town;
     internal enum TowerID
     {
         Blockade, IntermediateFireRate, IntermediateBalanced,
@@ -25,15 +24,14 @@ public class TowerBehaviour : MonoBehaviour {
     {
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
         EnemyController = GameObject.Find("EnemyController");
-        Town = GameObject.Find("Town").GetComponent<TownControls>();
-        if (Town.Currency - Cost < 0)
+        if (GameManagerStuff.Currency - Cost < 0)
         {
             GameManager.PushToEventLog("This exceeds youre current gold.");
             Destroy(gameObject);
         }
         else
         {
-            Town.Currency -= Cost;
+            GameManagerStuff.Currency -= Cost;
         }
         StartCoroutine(Fire());
     }

@@ -47,7 +47,14 @@ public class ButtonHandler : MonoBehaviour
     }
     private void DisplayUi(GameObject obj, int alpha)
     {
-        obj.GetComponent<CanvasRenderer>().SetAlpha(alpha);
+        if (obj)
+        {
+            print(obj);
+        }
+        if (obj.GetComponent<CanvasRenderer>())
+        {
+            obj.GetComponent<CanvasRenderer>().SetAlpha(alpha);
+        }
         if(obj.transform.childCount > 0)
         {
             foreach(Transform trans in obj.transform)

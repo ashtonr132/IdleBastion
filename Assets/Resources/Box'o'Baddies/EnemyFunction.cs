@@ -8,7 +8,6 @@ public class EnemyFunction : MonoBehaviour
     internal float MoveSpeed, MaxHP, ArmourVal, CurrentHP;
     private GameManagerStuff GameManager;
     private EnemySpawning ESp;
-    private TownControls Town;
     private Vector3 ResPos;
     internal enum EnemyID
     {
@@ -25,7 +24,6 @@ public class EnemyFunction : MonoBehaviour
         CurrentHP = MaxHP;
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
         ESp = GameObject.Find("EnemyController").GetComponent<EnemySpawning>();
-        Town = GameObject.Find("Town").GetComponent<TownControls>();
         if (CurrentEnemyID == EnemyID.Regenerator)
         {
             StartCoroutine(EnemyActions("Healing"));
@@ -75,8 +73,8 @@ public class EnemyFunction : MonoBehaviour
             {
                 if (hit.transform == transform) //Is the ray hitting this transform?
                 {
-                    CurrentHP += GameManager.Damage / ArmourVal;
-                    GameManager.DisplayValue((GameManager.Damage / ArmourVal).ToString(), gameObject.transform.position);
+                    CurrentHP += GameManagerStuff.Damage / ArmourVal;
+                    GameManager.DisplayValue((GameManagerStuff.Damage / ArmourVal).ToString(), gameObject.transform.position);
                     GameManager.FragmentEnemy(gameObject, 1, 1);
                     if(CurrentEnemyID == EnemyID.Teleport)
                     {
@@ -107,7 +105,7 @@ public class EnemyFunction : MonoBehaviour
                 GameManager.FragmentEnemy(gameObject, 10, 15);
                 Destroy(gameObject);
             }
-            Town.Currency += EnemyValue;
+            GameManagerStuff.Currency += EnemyValue;
         }
     }
     private void StandardMovement()
@@ -120,9 +118,9 @@ public class EnemyFunction : MonoBehaviour
         {
             GameManager.FragmentEnemy(gameObject, 10, 15);
             Destroy(gameObject); //obj let through
-            if (Town.Population > 1)
+            if (GameManagerStuff.Population > 1)
             {
-                Town.Population--;
+                GameManagerStuff.Population--;
             }
         }
         /*else if (col.gameObject.GetComponent<WhatBaddieDo>().CurrentEnemyID == Default)
