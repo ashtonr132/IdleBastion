@@ -5,8 +5,7 @@ using UnityEngine;
 public class EnemySpawning : MonoBehaviour
 {
     internal GameObject[,] Grid;
-    private int OnStage = 0;
-    internal float LevelDifficulty;
+    private int OnStage, LevelDifficulty;
     private GameManagerStuff GameManager;
     List<EnemyFunction.EnemyID[]> Stages = new List<EnemyFunction.EnemyID[]>();
 
@@ -24,7 +23,7 @@ public class EnemySpawning : MonoBehaviour
             {
                 yield return new WaitForSeconds(Interval);
                 SpawnBaddie(Stages[OnStage][i]);
-                if (i == Stages[OnStage].Length - 2)
+                if (i == (Stages[OnStage].Length -1))
                 {
                     StartCoroutine(Spawning("NextStage", 3));
                 }
@@ -34,7 +33,6 @@ public class EnemySpawning : MonoBehaviour
         else if(System.String.Equals(Pass, "NextStage")) //Prepare for next stage
         {
             Stages.Add(GenerateStage());
-            Interval += GameObject.Find("EnemyController").transform.childCount - 1; //Contains one non enemy child
             for(int i = 0; i <= Interval; i++)
             {
                 yield return new WaitForSeconds(1);
@@ -63,15 +61,16 @@ public class EnemySpawning : MonoBehaviour
     }
     private EnemyFunction.EnemyID[] GenerateStage()
     {
-        LevelDifficulty = ((5 * Mathf.Sin((2 * Mathf.PI * OnStage) / -3)) + (5 * OnStage) + 3);
+        LevelDifficulty = (int)((5 * Mathf.Sin((2 * Mathf.PI * OnStage) / -3)) + (5 * OnStage) + 3);
         int totalLevelSet = 0;
         List<EnemyFunction.EnemyID> temp = new List<EnemyFunction.EnemyID>();
         while (totalLevelSet < LevelDifficulty)
         {
-            int tempint = Random.Range(0, 10);
+            int tempint = Random.Range(1, 11);
+            print("eneysel = " + tempint);
             switch (tempint)
             {
-                case 1:
+                default:
                     temp.Add(EnemyFunction.EnemyID.Default);
                     break;
                 case 2:
@@ -92,7 +91,7 @@ public class EnemySpawning : MonoBehaviour
                 case 7:
                     temp.Add(EnemyFunction.EnemyID.Mother);
                     break;
-                case 8:
+                case 8: 
                     temp.Add(EnemyFunction.EnemyID.Knight);
                     break;
                 case 9:
@@ -103,6 +102,8 @@ public class EnemySpawning : MonoBehaviour
                     break;
             }
             totalLevelSet =+ tempint;
+            print("leveldiffexceed" + LevelDifficulty);
+            print( "diff total = " + totalLevelSet);
         }
         EnemyFunction.EnemyID[] temparray= new EnemyFunction.EnemyID[temp.Count];
         for (int i = 0; i < temp.Count; i++)
