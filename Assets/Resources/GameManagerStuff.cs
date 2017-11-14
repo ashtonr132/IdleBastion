@@ -70,7 +70,7 @@ public class GameManagerStuff : MonoBehaviour
     }
     internal void DisplayValue(string Display, Vector3 DisplayPosition) //Popup text
     {
-        DisplayPosition = Camera.main.WorldToScreenPoint(DisplayPosition) + (Vector3.right * 70) + (new Vector3(Random.value, Random.value, Random.value)) * 15; //World coords to pixel coords for the ui canvas plus an angle skew adjustment and a random 15 wide random change
+        DisplayPosition = Camera.main.WorldToScreenPoint(DisplayPosition) + (new Vector3(Random.value, Random.value, Random.value)); //World coords to pixel coords for the ui canvas plus an angle skew adjustment and a random 15 wide random change
         Vector2 canvasCentre = new Vector2(Canvas.GetComponent<RectTransform>().sizeDelta.x / 2, Canvas.GetComponent<RectTransform>().sizeDelta.y / 2); //Canvas centre for reference
         GameObject DamageTextInstance = (GameObject)Instantiate((GameObject)Resources.Load("Box'o'Baddies/DamageValueParent"), -(canvasCentre - new Vector2(DisplayPosition.x, DisplayPosition.y)), Quaternion.identity); //Position is wrong
         DamageTextInstance.transform.GetChild(0).GetComponent<Text>().text = Display;

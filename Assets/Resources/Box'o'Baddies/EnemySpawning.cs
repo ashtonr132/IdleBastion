@@ -67,7 +67,6 @@ public class EnemySpawning : MonoBehaviour
         while (totalLevelSet < LevelDifficulty)
         {
             int tempint = Random.Range(1, 11);
-            print("eneysel = " + tempint);
             switch (tempint)
             {
                 default:
@@ -101,9 +100,7 @@ public class EnemySpawning : MonoBehaviour
                     temp.Add(EnemyFunction.EnemyID.Assasin);
                     break;
             }
-            totalLevelSet =+ tempint;
-            print("leveldiffexceed" + LevelDifficulty);
-            print( "diff total = " + totalLevelSet);
+            totalLevelSet += tempint;
         }
         EnemyFunction.EnemyID[] temparray= new EnemyFunction.EnemyID[temp.Count];
         for (int i = 0; i < temp.Count; i++)
