@@ -6,6 +6,7 @@ public class EnemySpawning : MonoBehaviour
 {
     internal GameObject[,] Grid;
     private int OnStage = 0;
+    internal float LevelDifficulty;
     private GameManagerStuff GameManager;
     List<EnemyFunction.EnemyID[]> Stages = new List<EnemyFunction.EnemyID[]>();
 
@@ -13,7 +14,6 @@ public class EnemySpawning : MonoBehaviour
     {
         Grid = GameObject.Find("GameGrid").GetComponent<CreateGameGrid>().GetGrid();
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
-        GenerateStages();
         StartCoroutine(Spawning("NextStage", 3)); //Start stageloop ienum
     }
     internal IEnumerator Spawning(string Pass, float Interval)
@@ -33,6 +33,7 @@ public class EnemySpawning : MonoBehaviour
         }
         else if(System.String.Equals(Pass, "NextStage")) //Prepare for next stage
         {
+            Stages.Add(GenerateStage());
             Interval += GameObject.Find("EnemyController").transform.childCount - 1; //Contains one non enemy child
             for(int i = 0; i <= Interval; i++)
             {
@@ -60,9 +61,55 @@ public class EnemySpawning : MonoBehaviour
         Enemy.AddComponent<EnemyFunction>();
         Enemy.GetComponent<EnemyFunction>().EnemyType(id);
     }
-    private void GenerateStages()
+    private EnemyFunction.EnemyID[] GenerateStage()
     {
-        EnemyFunction.EnemyID[] Stage0 = new EnemyFunction.EnemyID[] { EnemyFunction.EnemyID.Charger }; Stages.Add(Stage0);
+        LevelDifficulty = ((5 * Mathf.Sin((2 * Mathf.PI * OnStage) / -3)) + (5 * OnStage) + 3);
+        int totalLevelSet = 0;
+        List<EnemyFunction.EnemyID> temp = new List<EnemyFunction.EnemyID>();
+        while (totalLevelSet < LevelDifficulty)
+        {
+            int tempint = Random.Range(0, 10);
+            switch (tempint)
+            {
+                case 1:
+                    temp.Add(EnemyFunction.EnemyID.Default);
+                    break;
+                case 2:
+                    temp.Add(EnemyFunction.EnemyID.Charger);
+                    break;
+                case 3:
+                    temp.Add(EnemyFunction.EnemyID.Teleport);
+                    break;
+                case 4:
+                    temp.Add(EnemyFunction.EnemyID.Regenerator);
+                    break;
+                case 5:
+                    temp.Add(EnemyFunction.EnemyID.Shielded);
+                    break;
+                case 6:
+                    temp.Add(EnemyFunction.EnemyID.Phasing);
+                    break;
+                case 7:
+                    temp.Add(EnemyFunction.EnemyID.Mother);
+                    break;
+                case 8:
+                    temp.Add(EnemyFunction.EnemyID.Knight);
+                    break;
+                case 9:
+                    temp.Add(EnemyFunction.EnemyID.Undead);
+                    break;
+                case 10:
+                    temp.Add(EnemyFunction.EnemyID.Assasin);
+                    break;
+            }
+            totalLevelSet =+ tempint;
+        }
+        EnemyFunction.EnemyID[] temparray= new EnemyFunction.EnemyID[temp.Count];
+        for (int i = 0; i < temp.Count; i++)
+        {
+            temparray[i] = temp[i];
+        }
+        return temparray;             
         // EnemyFunction.EnemyID[] Stage0 = new EnemyFunction.EnemyID[] {EnemyFunction.EnemyID.Assasin,EnemyFunction.EnemyID.Bonus, EnemyFunction.EnemyID.Boss, EnemyFunction.EnemyID.Charger, EnemyFunction.EnemyID.Default, EnemyFunction.EnemyID.Knight, EnemyFunction.EnemyID.Mother, EnemyFunction.EnemyID.Phasing, EnemyFunction.EnemyID.Regenerator, EnemyFunction.EnemyID.Shielded, EnemyFunction.EnemyID.Teleport, EnemyFunction.EnemyID.Undead}; Stages.Add(Stage0); //Planned Stages
     }
 }

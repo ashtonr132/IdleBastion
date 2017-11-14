@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EnemyFunction : MonoBehaviour
 {
-    internal int EnemyValue, DamageDealt;
+    internal int EnemyValue, DamageDealt, DiffVal;
     internal float MoveSpeed, MaxHP, ArmourVal, CurrentHP;
     private GameManagerStuff GameManager;
     private EnemySpawning ESp;
@@ -12,11 +12,10 @@ public class EnemyFunction : MonoBehaviour
     internal enum EnemyID
     {
         Default, Teleport, Phasing,
-        Boss, Assasin, Knight,
-        Mother, Shielded, Charger,
-        Regenerator, Undead, Bonus,
-        Child,
-        Resurrecting //resurrecting is a state for undead do not directly call
+        Assasin, Knight, Mother,
+        Shielded, Charger, Regenerator,
+        Undead, Bonus,
+        Child, Resurrecting, Boss //resurrecting is a state for undead do not directly call
     }
     internal EnemyID CurrentEnemyID;
     void Start()  // Use this for initialization
@@ -39,7 +38,7 @@ public class EnemyFunction : MonoBehaviour
             StandardMovement();
                 break;
             case EnemyID.Charger:
-            var currentMoveSpeed = Mathf.PingPong(Time.time * 100, (MoveSpeed / CurrentHP -1) * MaxHP);
+            var currentMoveSpeed = Mathf.PingPong(Time.time * 100, MoveSpeed / Mathf.Sqrt(CurrentHP) + 3);
             gameObject.GetComponent<Rigidbody>().velocity = -Vector3.forward * currentMoveSpeed; //Enemy movement
                 break;
             case EnemyID.Regenerator:
@@ -103,6 +102,7 @@ public class EnemyFunction : MonoBehaviour
             else
             {
                 GameManager.FragmentEnemy(gameObject, 10, 15);
+                GameManagerStuff.EnemiesKilled++;
                 Destroy(gameObject);
             }
             GameManagerStuff.Currency += EnemyValue;
@@ -155,38 +155,38 @@ public class EnemyFunction : MonoBehaviour
         switch (CurrentEnemyID)
         {
             case EnemyID.Teleport:
-                ReAssignTypeVal(Color.white, id.ToString(), movespeed:20, enemyvalue:20);
+                ReAssignTypeVal(Color.white, id.ToString(), movespeed:20, enemyvalue:20, diffval: 3);
                 break;
             case EnemyID.Phasing:
-                ReAssignTypeVal(Color.black, id.ToString(), maxhp: 4, enemyvalue: 15);
+                ReAssignTypeVal(Color.black, id.ToString(), maxhp: 4, enemyvalue: 15, diffval: 6);
                 gameObject.GetComponent<Renderer>().material = (Material)(Resources.Load("Box'o'Baddies/FragmentMat"));
                 break;
             case EnemyID.Boss:
                 ReAssignTypeVal(Color.red, id.ToString(), 10, enemyvalue:250, armourvalue:3, scalar:25);
                 break;
             case EnemyID.Assasin:
-                ReAssignTypeVal(Color.yellow, id.ToString(), 35, 5, 20, scalar:6);
+                ReAssignTypeVal(Color.yellow, id.ToString(), 35, 5, 20, scalar:6, diffval: 10);
                 break;
             case EnemyID.Knight:
-                ReAssignTypeVal(Color.grey, id.ToString(), 10, 8, 30, 2.5f, 12);
+                ReAssignTypeVal(Color.grey, id.ToString(), 10, 8, 30, 2.5f, 12, 8);
                 break;
             case EnemyID.Mother:
-                ReAssignTypeVal(new Color32(255, 181, 197, 255), id.ToString(), 12, 5);
+                ReAssignTypeVal(new Color32(255, 181, 197, 255), id.ToString(), 12, 5, diffval: 7);
                 break;
             case EnemyID.Shielded:
-                ReAssignTypeVal(new Color32(0, 0, 128, 255), id.ToString(), 12, 5, 15);
+                ReAssignTypeVal(new Color32(0, 0, 128, 255), id.ToString(), 12, 5, 15, diffval: 5);
                 break;
             case EnemyID.Charger:
-                ReAssignTypeVal(new Color32(0, 255, 255, 255), id.ToString(), 50);
+                ReAssignTypeVal(new Color32(0, 255, 255, 255), id.ToString(), 50, diffval: 2);
                 break;
             case EnemyID.Regenerator:
-                ReAssignTypeVal(new Color32(0, 128, 0, 255), id.ToString(), enemyvalue: 45);
+                ReAssignTypeVal(new Color32(0, 128, 0, 255), id.ToString(), enemyvalue: 45, diffval: 4);
                 break;
             case EnemyID.Undead:
-                ReAssignTypeVal(new Color32(65, 90, 190, 255), id.ToString(), enemyvalue: 10);
+                ReAssignTypeVal(new Color32(65, 90, 190, 255), id.ToString(), enemyvalue: 10, diffval: 9);
                 break;
             case EnemyID.Bonus:
-                ReAssignTypeVal(Color.black, id.ToString(), 100, 2, 200, 1, 8);
+                ReAssignTypeVal(Color.black, id.ToString(), 100, 2, 200, 1, 8, -10);
                 GameObject BonusParent = new GameObject(gameObject.name);
                 BonusParent.gameObject.transform.SetParent(gameObject.transform.parent);
                 gameObject.transform.SetParent(BonusParent.transform);
@@ -206,7 +206,7 @@ public class EnemyFunction : MonoBehaviour
                 break;
         }
     }
-    internal void ReAssignTypeVal(Color32 Color, string name = "DefaultBaddie", int movespeed = 15, int maxhp = 10, int enemyvalue = 10, float armourvalue = 1, int scalar = 10)
+    internal void ReAssignTypeVal(Color32 Color, string name = "DefaultBaddie", int movespeed = 15, int maxhp = 10, int enemyvalue = 10, float armourvalue = 1, int scalar = 10, int diffval = 1)
     {
         MoveSpeed = movespeed;
         MaxHP = maxhp;
@@ -216,6 +216,7 @@ public class EnemyFunction : MonoBehaviour
         gameObject.name = name;
         gameObject.GetComponent<Renderer>().material.color = Color;
         gameObject.transform.position += Vector3.up * gameObject.GetComponent<Renderer>().bounds.size.y / 2;
+        DiffVal = diffval;
     }
     internal IEnumerator EnemyActions(string Pass, Vector3 Pos = new Vector3())
     {

@@ -5,73 +5,60 @@ using UnityEngine.UI;
 
 public class ButtonHandler : MonoBehaviour
 {
+    Transform[] trs;
+    Text UIIndicatorText;
     private void Start()
     {
-        foreach (Transform child in transform)
+        UIIndicatorText = GameObject.Find("UIIndicator").transform.GetChild(0).GetComponent<Text>();
+        trs = new Transform[transform.childCount];
+        for (int i = 0; i < transform.childCount; i++)
         {
-            child.gameObject.GetComponent<Button>().onClick.AddListener(ToggleUI); //Add ref to onclick function
-            DisplayUi(GetRelativeUI(child.gameObject), 0);
+            trs[i] = transform.GetChild(i);
         }
+        foreach (Transform t in trs)
+        {
+            if (t.GetComponent<Button>())
+            {
+                t.GetComponent<Button>().onClick.AddListener(ToggleUI); //Add ref to onclick function
+                foreach (Transform d in t)
+                {
+                    if (!d.GetComponent<Text>())
+                    {
+                        d.gameObject.SetActive(false);
+                    }
+                }
+            }
+        }
+        trs[2].GetComponent<Button>().onClick.Invoke();
     }
     private void ToggleUI()
     {
-        foreach (Transform child in gameObject.transform) //Each button in ui list
+        try
         {
-            if (UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.name == child.name) //This button
+            UIIndicatorText.text = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.name;
+            Transform[] trs2 = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.GetComponentsInChildren<Transform>(true);
+            foreach (Transform b in trs)
             {
-                if (GetRelativeUI(child.gameObject).GetComponent<CanvasRenderer>().GetAlpha() == 0)
+                foreach (Transform c in b)
                 {
-                    DisplayUi(GetRelativeUI(child.gameObject), 1);
-                }
-                else
-                {
-                    DisplayUi(GetRelativeUI(child.gameObject), 0);
-                    GetRelativeUI(child.gameObject).GetComponent<CanvasRenderer>().SetAlpha(0);
+                    if (!c.GetComponent<Text>())
+                    {
+                        c.gameObject.SetActive(false);
+                    }
                 }
             }
-            else
+            foreach (Transform a in trs2)
             {
-                DisplayUi(GetRelativeUI(child.gameObject), 0);
+                a.gameObject.SetActive(true);
             }
         }
-    }
-    private GameObject GetRelativeUI(GameObject go)
-    {
-        char[] chars = go.name.ToCharArray(); //Name string to char array
-        char[] charz = new char[chars.Length - 6];
-        for (int i = 0; i < charz.Length; i++) //-Button suffix in the string
+        catch
         {
-            charz[i] = chars[i];
-        }
-        return GameObject.Find(new string(charz));
-    }
-    private void DisplayUi(GameObject obj, int alpha)
-    {
-        if (obj)
-        {
-            print(obj);
-        }
-        if (obj.GetComponent<CanvasRenderer>())
-        {
-            obj.GetComponent<CanvasRenderer>().SetAlpha(alpha);
-        }
-        if(obj.transform.childCount > 0)
-        {
-            foreach(Transform trans in obj.transform)
+            UIIndicatorText.text = trs[1].name;
+            foreach (Transform tr in trs[1])
             {
-                DisplayUi(trans.gameObject, alpha);
+                tr.gameObject.SetActive(true);
             }
         }
-    }
-    internal bool UIIsActive()
-    { 
-        foreach(CanvasRenderer canvasrenderer in gameObject.GetComponentsInChildren<CanvasRenderer>())
-        {
-            if (canvasrenderer.GetAlpha() > 0)
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

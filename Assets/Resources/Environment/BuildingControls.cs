@@ -46,7 +46,8 @@ public class BuildingControls : MonoBehaviour
                     }
                     else
                     {
-                        GameManager.PushToEventLog("This square has already been constructed upon.");
+                        GameManager.PushToEventLog("Tower Selected.");
+                        TowerBehaviour.LastTowerSelected = Indicator.transform.parent.GetChild(0).gameObject;
                     }
                 }
                 foreach (GameObject gridpiece in Grid) //On grid piece

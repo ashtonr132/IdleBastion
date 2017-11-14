@@ -4,21 +4,31 @@ using UnityEngine.UI;
 
 public class GameManagerStuff : MonoBehaviour
 {
-    internal static int TotalLifeTimeClicks, EnemiesKilled, TowersBuilt, Damage = -1, Currency, Population = 1;
+    internal static int TotalLifeTimeClicks, EnemiesKilled, TowersBuilt, Damage = -1, Currency = 0, Population = 1;
     private GameObject Canvas, FragmentEncapsulation;
+    private Transform PlayerUI;
 
     private void Start()
     {
+        PlayerUI = GameObject.Find("Player").transform;
         Canvas = GameObject.Find("Canvas");
         FragmentEncapsulation = new GameObject("FragmentEncapsulation");
         FragmentEncapsulation.transform.SetParent(GameObject.Find("EnemyController").transform);
     }
     void Update()
     {
-        GameObject.Find("Damage").transform.GetChild(0).GetComponent<Text>().text = Damage.ToString();
         if (Input.GetMouseButtonDown(0))
         {
             TotalLifeTimeClicks++;
+        }
+        if (PlayerUI.gameObject.activeSelf)
+        {
+            PlayerUI.GetChild(1).GetChild(0).GetComponent<Text>().text = Population.ToString();
+            PlayerUI.GetChild(2).GetChild(0).GetComponent<Text>().text = Mathf.Abs(Damage).ToString();
+            PlayerUI.GetChild(3).GetChild(0).GetComponent<Text>().text = TotalLifeTimeClicks.ToString();
+            PlayerUI.GetChild(4).GetChild(0).GetComponent<Text>().text = Currency.ToString();
+            PlayerUI.GetChild(5).GetChild(0).GetComponent<Text>().text = TowersBuilt.ToString();
+            PlayerUI.GetChild(6).GetChild(0).GetComponent<Text>().text = EnemiesKilled.ToString();
         }
     }
     internal GameObject AssignComponents(string name, Mesh mesh, Material mat, bool needsRB = false) //Setting up new game objects quickly

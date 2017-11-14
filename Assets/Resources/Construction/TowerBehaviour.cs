@@ -6,18 +6,12 @@ public class TowerBehaviour : MonoBehaviour {
 
     internal int Damage = -1, Cost = 100, Range = 50, ProjectileSpeed = 5;
     internal float FireRate = 0.25f, Accuracy = 1.25f;
-    private GameObject EnemyController;
-    private GameObject Target = null;
+    private GameObject EnemyController, Target = null;
+    internal static GameObject LastTowerSelected;
     private GameManagerStuff GameManager;
     internal enum TowerID
     {
-        Blockade, IntermediateFireRate, IntermediateBalanced,
-        IntermediateDamage, Marksman, AdvancedFireRate,
-        AdvancedSpreadShotX3, AdvancedSpreadShotX5, AdvancedLargerProjectiles,
-        Explosive, Gatling, Contagion, ElementalAffliction, BasicSupport,
-        Agitation, VisualAcuity, Generator, Mine, Beam, Divarification,
-        Swarm, Assimilation, Water, Fire, Earth, Air, Plasma, Ice, Magma,
-        Terra, Lightning, BlackHole, Radiation, AreaEffect, Default
+        Default
     }
     internal TowerID CurrentTowerID;
     void Start() //Use this for initialization
@@ -26,7 +20,7 @@ public class TowerBehaviour : MonoBehaviour {
         EnemyController = GameObject.Find("EnemyController");
         if (GameManagerStuff.Currency - Cost < 0)
         {
-            GameManager.PushToEventLog("This exceeds youre current gold.");
+            GameManager.PushToEventLog("This exceeds your current gold.");
             Destroy(gameObject);
         }
         else
@@ -34,6 +28,7 @@ public class TowerBehaviour : MonoBehaviour {
             GameManagerStuff.Currency -= Cost;
         }
         StartCoroutine(Fire());
+        LastTowerSelected = gameObject;
     }
     void Update()//Update is called once per frame
     {
@@ -78,74 +73,6 @@ public class TowerBehaviour : MonoBehaviour {
     {
         switch (ID)
         {
-            case TowerID.Blockade:
-                break;
-            case TowerID.IntermediateFireRate:
-                break;
-            case TowerID.IntermediateBalanced:
-                break;
-            case TowerID.IntermediateDamage:
-                break;
-            case TowerID.Marksman:
-                break;
-            case TowerID.AdvancedFireRate:
-                break;
-            case TowerID.AdvancedSpreadShotX3:
-                break;
-            case TowerID.AdvancedSpreadShotX5:
-                break;
-            case TowerID.AdvancedLargerProjectiles:
-                break;
-            case TowerID.Explosive:
-                break;
-            case TowerID.Gatling:
-                break;
-            case TowerID.Contagion:
-                break;
-            case TowerID.ElementalAffliction:
-                break;
-            case TowerID.BasicSupport:
-                break;
-            case TowerID.Agitation:
-                break;
-            case TowerID.VisualAcuity:
-                break;
-            case TowerID.Generator:
-                break;
-            case TowerID.Mine:
-                break;
-            case TowerID.Beam:
-                break;
-            case TowerID.Divarification:
-                break;
-            case TowerID.Swarm:
-                break;
-            case TowerID.Assimilation:
-                break;
-            case TowerID.Water:
-                break;
-            case TowerID.Fire:
-                break;
-            case TowerID.Earth:
-                break;
-            case TowerID.Air:
-                break;
-            case TowerID.Plasma:
-                break;
-            case TowerID.Ice:
-                break;
-            case TowerID.Magma:
-                break;
-            case TowerID.Terra:
-                break;
-            case TowerID.Lightning:
-                break;
-            case TowerID.BlackHole:
-                break;
-            case TowerID.Radiation:
-                break;
-            case TowerID.AreaEffect:
-                break;
             default: //Basic
                 Damage = -1; Cost = 100; Range = 50; ProjectileSpeed = 5; FireRate = 0.25f; 
                 transform.GetChild(0).GetComponent<MeshRenderer>().material.color = new Color32(100, 50, 0, 255);
