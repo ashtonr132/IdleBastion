@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class GameManagerStuff : MonoBehaviour
 {
-    internal static int TotalLifeTimeClicks, EnemiesKilled, TowersBuilt, Damage = -1, Currency = 0, Population = 1;
+    internal static int TotalLifeTimeClicks, EnemiesKilled, TowersBuilt, Damage = -1, Currency = 999999, Population = 1;
     private GameObject Canvas, FragmentEncapsulation;
     private Transform PlayerUI;
 

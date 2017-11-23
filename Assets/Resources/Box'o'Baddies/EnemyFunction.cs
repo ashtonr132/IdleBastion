@@ -112,6 +112,45 @@ public class EnemyFunction : MonoBehaviour
     {
         gameObject.GetComponent<Rigidbody>().velocity = -Vector3.forward * MoveSpeed; //Enemy movement
     }
+    private struct Node
+    {
+        public GameObject thisPart;
+        public Vector3 CenterPoint;
+        public float toStartDist, toEndDist, totalDist;
+        public bool isBuiltOn;
+    }
+    private Node[,] getNodes() {
+        Node[,] gridPath = new Node[GameManager.GetComponent<CreateGameGrid>().GetGrid().GetLength(0), GameManager.GetComponent<CreateGameGrid>().GetGrid().GetLength(1)];
+        int x = 0, y = 0;
+        foreach (GameObject p in GameManager.GetComponent<CreateGameGrid>().GetGrid())
+        {
+            if (x > GameManager.GetComponent<CreateGameGrid>().GetGrid().GetLength(0))
+            {
+                x = 0;
+                y++;
+            }
+            else
+            {
+                x++;
+            }
+            Node newnode;
+            newnode.isBuiltOn = false;
+            newnode.thisPart = p;
+            newnode.CenterPoint = p.transform.GetComponent<Renderer>().bounds.center;
+            newnode.toStartDist = 0; newnode.toEndDist = 0; newnode.totalDist = 0;
+            if (p.transform.childCount > 0) {
+                foreach (Transform child in p.transform)
+                {
+                    if(child.name == "Tower")
+                    {
+                        newnode.isBuiltOn = true;
+                    }
+                }
+            }
+            gridPath[x, y] = newnode; 
+        }
+        return gridPath;
+    }
     void OnCollisionEnter(Collision col)
     {
         if (String.Equals(col.transform.name, "KillZone"))
@@ -123,15 +162,15 @@ public class EnemyFunction : MonoBehaviour
                 GameManagerStuff.Population--;
             }
         }
-        /*else if (col.gameObject.GetComponent<WhatBaddieDo>().CurrentEnemyID == Default)
-        {
-            //make them change movement out of the way
-        }*/
     }
     void OnTriggerEnter(Collider col)
     {
         if (System.String.Equals(col.transform.name, "Projectile"))
         {
+            if (CurrentEnemyID == EnemyID.Teleport)
+            {
+                gameObject.transform.position = gameObject.transform.position.ParameterChange(X: (UnityEngine.Random.Range(0, 110)), Z: (UnityEngine.Random.Range(gameObject.transform.position.z, 190)));
+            }
             if (CurrentEnemyID == EnemyID.Shielded) //This unit is immune to tower damage
             {
                 DamageDealt = 0;
