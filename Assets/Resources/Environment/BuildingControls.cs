@@ -40,8 +40,9 @@ public class BuildingControls : MonoBehaviour
                         Tower.AddComponent<TowerBehaviour>();
                         Tower.GetComponent<TowerBehaviour>().SetTowerType(TowerBehaviour.TowerID.Default);
                         Tower.GetComponent<Rigidbody>().isKinematic = true;
-                        Tower.transform.position = Indicator.transform.position;
+                        Tower.transform.position = Indicator.transform.position + Indicator.transform.parent.GetComponent<Renderer>().bounds.extents;
                         Tower.transform.SetParent(Indicator.transform.parent);
+                        Tower.transform.localScale /= 1.25f;
                         GameManagerStuff.TowersBuilt++;
                     }
                     else

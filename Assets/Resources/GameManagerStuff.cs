@@ -13,6 +13,7 @@ public class GameManagerStuff : MonoBehaviour
         PlayerUI = GameObject.Find("Player").transform;
         Canvas = GameObject.Find("Canvas");
         FragmentEncapsulation = new GameObject("FragmentEncapsulation");
+        FragmentEncapsulation.transform.position = new Vector3(-100, 0, 0);
         FragmentEncapsulation.transform.SetParent(GameObject.Find("EnemyController").transform);
     }
     void Update()

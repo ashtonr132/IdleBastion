@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyFunction : MonoBehaviour
 {
-    internal int EnemyValue, DamageDealt;
+    internal int EnemyValue, DamageDealt, x = 0, y = 0;
     internal float MoveSpeed, MaxHP, ArmourVal, CurrentHP;
     private GameManagerStuff GameManager;
     private EnemySpawning ESp;
+    private GameObject[,] CGG;
     private Vector3 ResPos;
+    private List<GameObject> FinalPath = new List<GameObject>();
+    private GameObject killzonepathing;
     internal enum EnemyID
     {
         Default, Teleport, Phasing,
@@ -21,48 +25,51 @@ public class EnemyFunction : MonoBehaviour
     void Start()  // Use this for initialization
     {
         CurrentHP = MaxHP;
+        CGG = GameObject.Find("GameGrid").GetComponent<CreateGameGrid>().GetGrid();
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
         ESp = GameObject.Find("EnemyController").GetComponent<EnemySpawning>();
         if (CurrentEnemyID == EnemyID.Regenerator)
         {
             StartCoroutine(EnemyActions("Healing"));
         }
+        killzonepathing = new GameObject("killzone pathing");
+        killzonepathing.transform.position = new Vector3(transform.position.x, transform.position.y, GameObject.Find("KillZone").transform.position.z);
+        killzonepathing.transform.SetParent(GameObject.Find("FragmentEncapsulation").transform);
     }
     void Update() //Update is called once per frame
     {
         switch (CurrentEnemyID)
         {
             case EnemyID.Bonus:
-            transform.Rotate(Vector3.right * UnityEngine.Random.value * 5);
-            gameObject.GetComponent<Renderer>().material.color = Color.Lerp(Color.yellow, Color.black, Mathf.PingPong(Time.time, 1)); //Color pulsing
-            StandardMovement();
+                transform.Rotate(Vector3.right * UnityEngine.Random.value * 5);
+                gameObject.GetComponent<Renderer>().material.color = Color.Lerp(Color.yellow, Color.black, Mathf.PingPong(Time.time, 1)); //Color pulsing
+                StandardMovement();
                 break;
             case EnemyID.Charger:
-            var currentMoveSpeed = Mathf.PingPong(Time.time * 100, MoveSpeed / Mathf.Sqrt(CurrentHP) + 3);
-            gameObject.GetComponent<Rigidbody>().velocity = -Vector3.forward * currentMoveSpeed; //Enemy movement
+                StandardMovement();
                 break;
             case EnemyID.Regenerator:
-            gameObject.GetComponent<Renderer>().material.color = Color.Lerp(new Color32(250, 128, 114, 255), new Color32(0, 128, 0, 255), Mathf.PingPong(Time.time, 1.5f));
-            StandardMovement();
+                gameObject.GetComponent<Renderer>().material.color = Color.Lerp(new Color32(250, 128, 114, 255), new Color32(0, 128, 0, 255), Mathf.PingPong(Time.time, 1.5f));
+                StandardMovement();
                 break;
             case EnemyID.Phasing:
-            Color col = GetComponent<Renderer>().material.color;
-            GetComponent<Renderer>().material.color = new Color(col.r, col.g, col.b, Mathf.PingPong(Time.time / 2, 1));
-            StandardMovement();
+                Color col = GetComponent<Renderer>().material.color;
+                GetComponent<Renderer>().material.color = new Color(col.r, col.g, col.b, Mathf.PingPong(Time.time / 2, 1));
+                StandardMovement();
                 break;
             case EnemyID.Resurrecting:
-            Collider GOCollider = GetComponent<Collider>();
-            GOCollider.enabled = false;
-            gameObject.transform.position = new Vector3(ResPos.x, Mathf.Lerp((ResPos + (Vector3.down * 30)).y, ResPos.y, Time.time / 20), ResPos.z);
-            if (gameObject.transform.position.y >= ResPos.y)
-            {
-                CurrentEnemyID = EnemyID.Default;
-                GOCollider.enabled = true;
-                gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezeRotationY;
-            }
+                Collider GOCollider = GetComponent<Collider>();
+                GOCollider.enabled = false;
+                gameObject.transform.position = new Vector3(ResPos.x, Mathf.Lerp((ResPos + (Vector3.down * 30)).y, ResPos.y, Time.time / 20), ResPos.z);
+                if (gameObject.transform.position.y >= ResPos.y)
+                {
+                    CurrentEnemyID = EnemyID.Default;
+                    GOCollider.enabled = true;
+                    gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezeRotationY;
+                }
                 break;
             default:
-            StandardMovement();
+                StandardMovement();
                 break;
         }
         if (Input.GetMouseButtonDown(0))
@@ -75,9 +82,9 @@ public class EnemyFunction : MonoBehaviour
                     CurrentHP += GameManagerStuff.Damage / ArmourVal;
                     GameManager.DisplayValue((GameManagerStuff.Damage / ArmourVal).ToString(), gameObject.transform.position);
                     GameManager.FragmentEnemy(gameObject, 1, 1);
-                    if(CurrentEnemyID == EnemyID.Teleport)
+                    if (CurrentEnemyID == EnemyID.Teleport)
                     {
-                        gameObject.transform.position = gameObject.transform.position.ParameterChange(X:(UnityEngine.Random.Range(0, 110)), Z:(UnityEngine.Random.Range(gameObject.transform.position.z, 190)));
+                        gameObject.transform.position = gameObject.transform.position.ParameterChange(X: (UnityEngine.Random.Range(0, 110)), Z: (UnityEngine.Random.Range(gameObject.transform.position.z, 190)));
                     }
                 }
             }
@@ -88,6 +95,7 @@ public class EnemyFunction : MonoBehaviour
             {
                 ESp.SpawnBaddie(EnemyID.Child, transform.position + Vector3.right * 3);
                 ESp.SpawnBaddie(EnemyID.Child, transform.position + Vector3.left * 3);
+                Destroy(killzonepathing);
                 Destroy(gameObject);
             }
             else if (CurrentEnemyID == EnemyID.Undead)
@@ -103,6 +111,7 @@ public class EnemyFunction : MonoBehaviour
             {
                 GameManager.FragmentEnemy(gameObject, 10, 15);
                 GameManagerStuff.EnemiesKilled++;
+                Destroy(killzonepathing);
                 Destroy(gameObject);
             }
             GameManagerStuff.Currency += EnemyValue;
@@ -110,52 +119,101 @@ public class EnemyFunction : MonoBehaviour
     }
     private void StandardMovement()
     {
-        gameObject.GetComponent<Rigidbody>().velocity = -Vector3.forward * MoveSpeed; //Enemy movement
-    }
-    private struct Node
-    {
-        public GameObject thisPart;
-        public Vector3 CenterPoint;
-        public float toStartDist, toEndDist, totalDist;
-        public bool isBuiltOn;
-    }
-    private Node[,] getNodes() {
-        Node[,] gridPath = new Node[GameManager.GetComponent<CreateGameGrid>().GetGrid().GetLength(0), GameManager.GetComponent<CreateGameGrid>().GetGrid().GetLength(1)];
-        int x = 0, y = 0;
-        foreach (GameObject p in GameManager.GetComponent<CreateGameGrid>().GetGrid())
+        FinalPath.Clear();
+        print(Vector3.Distance(transform.position, new Vector3(transform.position.x, transform.position.y, GameObject.Find("KillZone").transform.position.z)));
+        if (Vector3.Distance(transform.position, new Vector3(transform.position.x, transform.position.y, GameObject.Find("KillZone").transform.position.z)) >= 22)
         {
-            if (x > GameManager.GetComponent<CreateGameGrid>().GetGrid().GetLength(0))
+            List<GameObject> OpenTiles = new List<GameObject>();
+            GameObject ChosenTile = CGG[0, 0];
+            RaycastHit hit;
+            if (Physics.Raycast(transform.position, Vector3.down, out hit))
             {
-                x = 0;
-                y++;
+                if (CheckForGameObject(hit))
+                {
+                    ChosenTile = hit.transform.gameObject;
+                }
+            }
+            if (ChosenTile != CGG[x, 0])
+            {
+                if (x + 1 > 0 && x + 1 < CGG.GetLength(0) && CGG[x + 1, y] != null && CGG[x + 1, y].transform.Find("Tower") == null)
+                {
+                    OpenTiles.Add(CGG[x + 1, y]);
+                }
+                if (x - 1 > 0 && x - 1 < CGG.GetLength(0) && CGG[x - 1, y] != null && CGG[x - 1, y].transform.Find("Tower") == null)
+                {
+                    OpenTiles.Add(CGG[x - 1, y]);
+                }
+                if (y + 1 > 0 && y + 1 < CGG.GetLength(1) && CGG[x, y + 1] != null && CGG[x, y + 1].transform.Find("Tower") == null)
+                {
+                    OpenTiles.Add(CGG[x, y + 1]);
+                }
+                if (y - 1 > 0 && y - 1 < CGG.GetLength(1) && CGG[x, y - 1] != null && CGG[x, y - 1].transform.Find("Tower") == null)
+                {
+                    OpenTiles.Add(CGG[x, y - 1]);
+                };
+                if (OpenTiles.Count != 0)
+                {
+                    var Distance = 99999999;
+                    foreach (var item in OpenTiles)
+                    {
+                        if (Vector3.Distance(item.transform.position, CGG[x, 0].transform.position) < Distance)
+                        {
+                            ChosenTile = item;
+                        }
+                    }
+                    FinalPath.Add(ChosenTile);
+                    OpenTiles.Clear();
+                }
+            }
+        }
+        if(Vector3.Distance(transform.position, new Vector3(transform.position.x, transform.position.y, GameObject.Find("KillZone").transform.position.z)) < 22 || FinalPath.Count == 0)
+        {
+            FinalPath.Add(killzonepathing);
+        }
+        if (CurrentEnemyID != EnemyID.Charger)
+        {
+            if (FinalPath[0].name == "killzone pathing")
+            {
+                GetComponent<Rigidbody>().velocity = (FinalPath[0].transform.position - transform.position) * MoveSpeed;
             }
             else
             {
-                x++;
+                GetComponent<Rigidbody>().velocity = ((FinalPath[0].transform.position + FinalPath[0].GetComponent<Renderer>().bounds.extents) - transform.position) * MoveSpeed;
             }
-            Node newnode;
-            newnode.isBuiltOn = false;
-            newnode.thisPart = p;
-            newnode.CenterPoint = p.transform.GetComponent<Renderer>().bounds.center;
-            newnode.toStartDist = 0; newnode.toEndDist = 0; newnode.totalDist = 0;
-            if (p.transform.childCount > 0) {
-                foreach (Transform child in p.transform)
+        }
+        else
+        {
+            var currentMoveSpeed = Mathf.PingPong(Time.time * 100, MoveSpeed / Mathf.Sqrt(CurrentHP) + 3);
+            if (FinalPath[0].name == "killzone pathing")
+            {
+                GetComponent<Rigidbody>().velocity = (FinalPath[0].transform.position - transform.position) * currentMoveSpeed;
+            }
+            else
+            {
+                GetComponent<Rigidbody>().velocity = ((FinalPath[0].transform.position + FinalPath[0].GetComponent<Renderer>().bounds.extents) - transform.position) * currentMoveSpeed;
+            }
+        }
+    }
+    bool CheckForGameObject(RaycastHit hit)
+    {
+        for (x = 0; x < (CGG.GetLength(0)-1); x++)
+        {
+            for ( y = 0; y < (CGG.GetLength(1) - 1); y++)
+            {
+                if (CGG[x, y] == hit.transform.gameObject)
                 {
-                    if(child.name == "Tower")
-                    {
-                        newnode.isBuiltOn = true;
-                    }
+                    return true;
                 }
             }
-            gridPath[x, y] = newnode; 
         }
-        return gridPath;
+        return false;
     }
     void OnCollisionEnter(Collision col)
     {
         if (String.Equals(col.transform.name, "KillZone"))
         {
             GameManager.FragmentEnemy(gameObject, 10, 15);
+            Destroy(killzonepathing);
             Destroy(gameObject); //obj let through
             if (GameManagerStuff.Population > 1)
             {
