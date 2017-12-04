@@ -54,7 +54,7 @@ public class EnemySpawning : MonoBehaviour
         spawnPos = spawnPos ?? new Vector3(GridPieceTemp.transform.position.x + (GridPieceTemp.GetComponent<Renderer>().bounds.size.x / 2), GridPieceTemp.transform.position.y, GridPieceTemp.transform.position.z);
         GameObject tempMesh = GameObject.CreatePrimitive(PrimitiveType.Cube);
         GameObject Enemy = GameManager.AssignComponents(id.ToString(), tempMesh.GetComponent<MeshFilter>().mesh, new Material(Shader.Find("Unlit/Color")), true); Destroy(tempMesh);
-        Enemy.transform.position = (Vector3)spawnPos + new Vector3(0, Enemy.GetComponent<Renderer>().bounds.size.y/2 + 1, 0);
+        Enemy.transform.position = (Vector3)spawnPos + Vector3.up;
         Enemy.transform.SetParent(gameObject.transform); //Orderliness
         Enemy.AddComponent<EnemyFunction>();
         Enemy.GetComponent<EnemyFunction>().EnemyType(id);

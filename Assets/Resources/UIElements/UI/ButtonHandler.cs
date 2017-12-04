@@ -9,6 +9,7 @@ public class ButtonHandler : MonoBehaviour
     Text UIIndicatorText;
     private void Start()
     {
+        GameObject.Find("Buy Gold").GetComponent<Button>().onClick.AddListener(AddGold);
         UIIndicatorText = GameObject.Find("UIIndicator").transform.GetChild(0).GetComponent<Text>();
         trs = new Transform[transform.childCount];
         for (int i = 0; i < transform.childCount; i++)
@@ -60,5 +61,9 @@ public class ButtonHandler : MonoBehaviour
                 tr.gameObject.SetActive(true);
             }
         }
+    }
+    private void AddGold()
+    {
+        GameManagerStuff.Currency += 1000;
     }
 }

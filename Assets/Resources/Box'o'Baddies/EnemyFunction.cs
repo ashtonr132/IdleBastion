@@ -11,7 +11,7 @@ public class EnemyFunction : MonoBehaviour
     private EnemySpawning ESp;
     private GameObject[,] CGG;
     private Vector3 ResPos;
-    private List<GameObject> FinalPath = new List<GameObject>();
+    private List<GameObject> FinalPath = new List<GameObject>(), OpenTiles = new List<GameObject>();
     private GameObject killzonepathing;
     internal enum EnemyID
     {
@@ -38,6 +38,13 @@ public class EnemyFunction : MonoBehaviour
     }
     void Update() //Update is called once per frame
     {
+        if (FinalPath.Count > 0)
+        {
+            foreach (var item in FinalPath)
+            {
+                Debug.DrawLine(item.transform.position, transform.position, Color.red, 99);
+            }
+        }
         switch (CurrentEnemyID)
         {
             case EnemyID.Bonus:
@@ -119,94 +126,142 @@ public class EnemyFunction : MonoBehaviour
     }
     private void StandardMovement()
     {
-        FinalPath.Clear();
-        print(Vector3.Distance(transform.position, new Vector3(transform.position.x, transform.position.y, GameObject.Find("KillZone").transform.position.z)));
-        if (Vector3.Distance(transform.position, new Vector3(transform.position.x, transform.position.y, GameObject.Find("KillZone").transform.position.z)) >= 22)
+        if (FinalPath.Count == 0)
         {
-            List<GameObject> OpenTiles = new List<GameObject>();
-            GameObject ChosenTile = CGG[0, 0];
             RaycastHit hit;
-            if (Physics.Raycast(transform.position, Vector3.down, out hit))
-            {
-                if (CheckForGameObject(hit))
+            GameObject chosentile;
+            Physics.Raycast(transform.position, Vector3.down, out hit);
+            chosentile = hit.transform.gameObject;
+                do
                 {
-                    ChosenTile = hit.transform.gameObject;
-                }
-            }
-            if (ChosenTile != CGG[x, 0])
-            {
-                if (x + 1 > 0 && x + 1 < CGG.GetLength(0) && CGG[x + 1, y] != null && CGG[x + 1, y].transform.Find("Tower") == null)
-                {
-                    OpenTiles.Add(CGG[x + 1, y]);
-                }
-                if (x - 1 > 0 && x - 1 < CGG.GetLength(0) && CGG[x - 1, y] != null && CGG[x - 1, y].transform.Find("Tower") == null)
-                {
-                    OpenTiles.Add(CGG[x - 1, y]);
-                }
-                if (y + 1 > 0 && y + 1 < CGG.GetLength(1) && CGG[x, y + 1] != null && CGG[x, y + 1].transform.Find("Tower") == null)
-                {
-                    OpenTiles.Add(CGG[x, y + 1]);
-                }
-                if (y - 1 > 0 && y - 1 < CGG.GetLength(1) && CGG[x, y - 1] != null && CGG[x, y - 1].transform.Find("Tower") == null)
-                {
-                    OpenTiles.Add(CGG[x, y - 1]);
-                };
-                if (OpenTiles.Count != 0)
-                {
-                    var Distance = 99999999;
-                    foreach (var item in OpenTiles)
+                    GetGridCoords(chosentile);
+                    if (x + 1 >= 0 && x + 1 <= CGG.GetLength(0) - 1)
                     {
-                        if (Vector3.Distance(item.transform.position, CGG[x, 0].transform.position) < Distance)
-                        {
-                            ChosenTile = item;
-                        }
+                        CheckForOpenTile(CGG[x + 1, y]);
                     }
-                    FinalPath.Add(ChosenTile);
-                    OpenTiles.Clear();
-                }
-            }
-        }
-        if(Vector3.Distance(transform.position, new Vector3(transform.position.x, transform.position.y, GameObject.Find("KillZone").transform.position.z)) < 22 || FinalPath.Count == 0)
-        {
-            FinalPath.Add(killzonepathing);
-        }
-        if (CurrentEnemyID != EnemyID.Charger)
-        {
-            if (FinalPath[0].name == "killzone pathing")
-            {
-                GetComponent<Rigidbody>().velocity = (FinalPath[0].transform.position - transform.position) * MoveSpeed;
-            }
-            else
-            {
-                GetComponent<Rigidbody>().velocity = ((FinalPath[0].transform.position + FinalPath[0].GetComponent<Renderer>().bounds.extents) - transform.position) * MoveSpeed;
-            }
+                    if (x - 1 >= 0 && x - 1 <= CGG.GetLength(0) - 1)
+                    {
+                        CheckForOpenTile(CGG[x - 1, y]);
+                    }
+                    if (y + 1 >= 0 && y + 1 <= CGG.GetLength(1) - 1)
+                    {
+                        CheckForOpenTile(CGG[x, y + 1]);
+                    }
+                    if (y - 1 >= 0 && y - 1 <= CGG.GetLength(1) - 1)
+                    {
+                        CheckForOpenTile(CGG[x, y - 1]);
+                    }
+                    if (OpenTiles.Count > 0)
+                    {
+                        float distance = 9999;
+                        foreach (GameObject item in OpenTiles)
+                        {
+                            if (item == CGG[x, 0])
+                            {
+                                FinalPath.Add(CGG[x, 0]);
+                                chosentile = killzonepathing;
+                            }
+                            else
+                            {
+                                if (Vector3.Distance(item.transform.position, killzonepathing.transform.position) <= distance)
+                                {
+                                    distance = Vector3.Distance(item.transform.position, killzonepathing.transform.position);
+                                    chosentile = item;
+                                }
+                            }
+                        }
+                        FinalPath.Add(chosentile);
+                    }
+                } while (chosentile != killzonepathing);
         }
         else
         {
-            var currentMoveSpeed = Mathf.PingPong(Time.time * 100, MoveSpeed / Mathf.Sqrt(CurrentHP) + 3);
-            if (FinalPath[0].name == "killzone pathing")
+            if (Vector3.Distance(FinalPath[0].transform.position, new Vector3(transform.position.x, 0, transform.position.z)) <= 8f)
             {
-                GetComponent<Rigidbody>().velocity = (FinalPath[0].transform.position - transform.position) * currentMoveSpeed;
+                FinalPath.Remove(FinalPath[0]);
             }
-            else
+            if (FinalPath.Count > 0)
             {
-                GetComponent<Rigidbody>().velocity = ((FinalPath[0].transform.position + FinalPath[0].GetComponent<Renderer>().bounds.extents) - transform.position) * currentMoveSpeed;
-            }
-        }
-    }
-    bool CheckForGameObject(RaycastHit hit)
-    {
-        for (x = 0; x < (CGG.GetLength(0)-1); x++)
-        {
-            for ( y = 0; y < (CGG.GetLength(1) - 1); y++)
+                if (CurrentEnemyID == EnemyID.Charger)
             {
-                if (CGG[x, y] == hit.transform.gameObject)
+                try
                 {
-                    return true;
+                    var CurrentMoveSpeed = Mathf.PingPong(Time.time * 100, MoveSpeed / Mathf.Sqrt(CurrentHP) + 3); if (FinalPath[0] != killzonepathing)
+                        if (FinalPath[0] != killzonepathing)
+                        {
+                            GetComponent<Rigidbody>().velocity = ((FinalPath[0].transform.position + FinalPath[0].GetComponent<Renderer>().bounds.extents) - transform.position) * CurrentMoveSpeed;
+                        }
+                        else
+                        {
+                            GetComponent<Rigidbody>().velocity = (FinalPath[0].transform.position - transform.position) * CurrentMoveSpeed;
+                        }
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+                if (FinalPath[0] != killzonepathing)
+                {
+                    GetComponent<Rigidbody>().velocity = ((FinalPath[0].transform.position + FinalPath[0].GetComponent<Renderer>().bounds.extents) - transform.position) * MoveSpeed;
+                }
+                else
+                {
+                    GetComponent<Rigidbody>().velocity = (FinalPath[0].transform.position - transform.position) * MoveSpeed;
+                }
+                foreach (GameObject item in FinalPath)
+                {
+                    bool flag = false;
+                    foreach (Transform item2 in item.transform)
+                    {
+                        if (item.name == "Tower")
+                        {
+                            FinalPath.Clear();
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if (flag)
+                    {
+                        break;
+                    }
                 }
             }
         }
-        return false;
+    }
+    void GetGridCoords(GameObject tile)
+    {
+        bool flag = false;
+        for (x = 0; x < (CGG.GetLength(0) - 1); x++)
+        {
+            for (y = 0; y < (CGG.GetLength(1) - 1); y++)
+            {
+                if (CGG[x, y] == tile.transform.gameObject)
+                {
+                    flag = true;
+                    break;
+
+                }
+            }
+            if (flag)
+            {
+                break;
+            }
+        }
+    }
+    void CheckForOpenTile(GameObject tile)
+    {
+        OpenTiles.Add(tile);
+        if (tile.transform.childCount > 0)
+        {
+            foreach (Transform item in tile.transform)
+            {
+                if (item.name == "Tower")
+                {
+                    OpenTiles.Remove(tile);
+                }
+            }
+        }
     }
     void OnCollisionEnter(Collision col)
     {
