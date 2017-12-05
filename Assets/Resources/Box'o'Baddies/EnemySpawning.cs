@@ -51,9 +51,10 @@ public class EnemySpawning : MonoBehaviour
     internal void SpawnBaddie(EnemyFunction.EnemyID id, Vector3? spawnPos = null) //Quick setup for objects 
     {
         GameObject GridPieceTemp = Grid[Random.Range(0, 21), 22]; //one less than the grid size
-        spawnPos = spawnPos ?? new Vector3(GridPieceTemp.transform.position.x + (GridPieceTemp.GetComponent<Renderer>().bounds.size.x / 2), GridPieceTemp.transform.position.y, GridPieceTemp.transform.position.z);
+        spawnPos = spawnPos ?? new Vector3(GridPieceTemp.transform.position.x + (GridPieceTemp.GetComponent<Renderer>().bounds.size.x / 2), GridPieceTemp.transform.position.y, GridPieceTemp.transform.position.z + (GridPieceTemp.GetComponent<Renderer>().bounds.size.y / 2));
         GameObject tempMesh = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        GameObject Enemy = GameManager.AssignComponents(id.ToString(), tempMesh.GetComponent<MeshFilter>().mesh, new Material(Shader.Find("Unlit/Color")), true); Destroy(tempMesh);
+        GameObject Enemy = GameManager.AssignComponents(id.ToString(), tempMesh.GetComponent<MeshFilter>().mesh, new Material(Shader.Find("Unlit/Color")), true);
+        Destroy(tempMesh);
         Enemy.transform.position = (Vector3)spawnPos + Vector3.up;
         Enemy.transform.SetParent(gameObject.transform); //Orderliness
         Enemy.AddComponent<EnemyFunction>();
@@ -62,12 +63,12 @@ public class EnemySpawning : MonoBehaviour
     }
     private EnemyFunction.EnemyID[] GenerateStage()
     {
-        LevelDifficulty = (int)((5 * Mathf.Sin((2 * Mathf.PI * OnStage) / -3)) + (5 * OnStage) + 3);
+        LevelDifficulty = (int)((5 * Mathf.Sin((2 * Mathf.PI * OnStage) / -3)) + (5 * OnStage) + 3); //difficulty scaling math
         int totalLevelSet = 0;
         List<EnemyFunction.EnemyID> temp = new List<EnemyFunction.EnemyID>();
-        while (totalLevelSet < LevelDifficulty)
+        while (totalLevelSet < LevelDifficulty) //build level selecing enemies on the fly to fufill the levels difficulty cap
         {
-            int tempint = Random.Range(1, 11);
+            int tempint = Random.Range(1, 12);
             switch (tempint)
             {
                 default:
@@ -100,6 +101,9 @@ public class EnemySpawning : MonoBehaviour
                 case 10:
                     temp.Add(EnemyFunction.EnemyID.Assasin);
                     break;
+                case 11:
+                    temp.Add(EnemyFunction.EnemyID.Bonus);
+                    break;
             }
             totalLevelSet += tempint;
         }
@@ -108,7 +112,8 @@ public class EnemySpawning : MonoBehaviour
         {
             temparray[i] = temp[i];
         }
-        return temparray;             
+        return temparray;
+        //code for spawning specific stages, tutorial stage? or just bugtesting
         // EnemyFunction.EnemyID[] Stage0 = new EnemyFunction.EnemyID[] {EnemyFunction.EnemyID.Assasin,EnemyFunction.EnemyID.Bonus, EnemyFunction.EnemyID.Boss, EnemyFunction.EnemyID.Charger, EnemyFunction.EnemyID.Default, EnemyFunction.EnemyID.Knight, EnemyFunction.EnemyID.Mother, EnemyFunction.EnemyID.Phasing, EnemyFunction.EnemyID.Regenerator, EnemyFunction.EnemyID.Shielded, EnemyFunction.EnemyID.Teleport, EnemyFunction.EnemyID.Undead}; Stages.Add(Stage0); //Planned Stages
     }
 }

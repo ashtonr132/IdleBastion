@@ -57,6 +57,7 @@ public class BuildingControls : MonoBehaviour
                     {
                         SelGridPiece = hit.transform.gameObject; //Which grid piece
                         Indicator = GameManager.AssignComponents("Indicator", CGG.DoMesh(), new Material(Shader.Find("Standard")));
+                        Indicator.GetComponent<MeshCollider>().isTrigger = true;
                         Indicator.transform.Rotate(90, 0, 0);
                         Indicator.transform.SetParent(gridpiece.transform);
                         IndPlacement = SelGridPiece.transform.position;

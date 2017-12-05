@@ -9,10 +9,10 @@ public class ButtonHandler : MonoBehaviour
     Text UIIndicatorText;
     private void Start()
     {
-        GameObject.Find("Buy Gold").GetComponent<Button>().onClick.AddListener(AddGold);
+        GameObject.Find("Buy Gold").GetComponent<Button>().onClick.AddListener(AddGold); //addgold buttoin func
         UIIndicatorText = GameObject.Find("UIIndicator").transform.GetChild(0).GetComponent<Text>();
         trs = new Transform[transform.childCount];
-        for (int i = 0; i < transform.childCount; i++)
+        for (int i = 0; i < transform.childCount; i++) //main selections in the menu
         {
             trs[i] = transform.GetChild(i);
         }
@@ -25,14 +25,14 @@ public class ButtonHandler : MonoBehaviour
                 {
                     if (!d.GetComponent<Text>())
                     {
-                        d.gameObject.SetActive(false);
+                        d.gameObject.SetActive(false); //set all to inactive to start
                     }
                 }
             }
         }
-        trs[2].GetComponent<Button>().onClick.Invoke();
+        trs[2].GetComponent<Button>().onClick.Invoke(); //set memu button active on start
     }
-    private void ToggleUI()
+    private void ToggleUI() //when you click one button all others and their component parts/children are deactivates and the clicked button activates all components and children
     {
         try
         {

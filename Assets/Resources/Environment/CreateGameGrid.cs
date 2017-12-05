@@ -21,7 +21,7 @@ public class CreateGameGrid : MonoBehaviour
                 var textrRan = Random.value;
                 if (textrRan > 0.95f)
                 {
-                    Grid[x, y].GetComponent<MeshRenderer>().material = (Material)Resources.Load("Environment/LittleFlowerMat");
+                    Grid[x, y].GetComponent<MeshRenderer>().material = (Material)Resources.Load("Environment/LittleFlowerMat"); //get and apply textures from resources folder
                 }
                 else if (textrRan < 0.4f && textrRan > 0.1f)
                 {
@@ -54,7 +54,7 @@ public class CreateGameGrid : MonoBehaviour
         return Grid;
     }
 
-    internal Mesh DoMesh()
+    internal Mesh DoMesh() //build a quick planar mesh
     {
         int[] myTriangles = { 0, 3, 1, 0, 2, 3 };
         Vector3[] myVertices = { new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(1, 1, 0) }; //Mesh Verticies

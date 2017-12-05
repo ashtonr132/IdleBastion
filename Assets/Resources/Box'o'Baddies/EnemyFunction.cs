@@ -5,15 +5,16 @@ using UnityEngine;
 
 public class EnemyFunction : MonoBehaviour
 {
-    internal int EnemyValue, DamageDealt, x = 0, y = 0;
+    internal int EnemyValue, DamageDealt; //initialising variables needed
     internal float MoveSpeed, MaxHP, ArmourVal, CurrentHP;
     private GameManagerStuff GameManager;
     private EnemySpawning ESp;
     private GameObject[,] CGG;
     private Vector3 ResPos;
+    private GameObject chosentile;
     private List<GameObject> FinalPath = new List<GameObject>(), OpenTiles = new List<GameObject>();
     private GameObject killzonepathing;
-    internal enum EnemyID
+    internal enum EnemyID //defineing enemy type
     {
         Default, Teleport, Phasing,
         Assasin, Knight, Mother,
@@ -21,20 +22,20 @@ public class EnemyFunction : MonoBehaviour
         Undead, Bonus,
         Child, Resurrecting, Boss //resurrecting is a state for undead do not directly call
     }
-    internal EnemyID CurrentEnemyID;
+    internal EnemyID CurrentEnemyID; //this enemies type
     void Start()  // Use this for initialization
     {
         CurrentHP = MaxHP;
-        CGG = GameObject.Find("GameGrid").GetComponent<CreateGameGrid>().GetGrid();
+        CGG = GameObject.Find("GameGrid").GetComponent<CreateGameGrid>().GetGrid(); //finding components needed
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
         ESp = GameObject.Find("EnemyController").GetComponent<EnemySpawning>();
         if (CurrentEnemyID == EnemyID.Regenerator)
         {
             StartCoroutine(EnemyActions("Healing"));
         }
-        killzonepathing = new GameObject("killzone pathing");
-        killzonepathing.transform.position = new Vector3(transform.position.x, transform.position.y, GameObject.Find("KillZone").transform.position.z);
-        killzonepathing.transform.SetParent(GameObject.Find("FragmentEncapsulation").transform);
+        killzonepathing = new GameObject("killzone pathing");  //create a game ovbject past the last tile of the grid to aim for to ensure death by killzone collision
+        killzonepathing.transform.position = new Vector3(transform.position.x, transform.position.y, GameObject.Find("KillZone").transform.position.z - 10);
+        killzonepathing.transform.SetParent(GameObject.Find("FragmentEncapsulation").transform); //clean containment
     }
     void Update() //Update is called once per frame
     {
@@ -42,10 +43,10 @@ public class EnemyFunction : MonoBehaviour
         {
             foreach (var item in FinalPath)
             {
-                Debug.DrawLine(item.transform.position, transform.position, Color.red, 99);
+                Debug.DrawLine(item.transform.position, transform.position, Color.red, 2);
             }
         }
-        switch (CurrentEnemyID)
+        switch (CurrentEnemyID) //unique functions per enemy type
         {
             case EnemyID.Bonus:
                 transform.Rotate(Vector3.right * UnityEngine.Random.value * 5);
@@ -126,151 +127,139 @@ public class EnemyFunction : MonoBehaviour
     }
     private void StandardMovement()
     {
-        if (FinalPath.Count == 0)
+        if (FinalPath.Count <= 0) //if path is not written
         {
             RaycastHit hit;
-            GameObject chosentile;
-            Physics.Raycast(transform.position, Vector3.down, out hit);
-            chosentile = hit.transform.gameObject;
-                do
+            Physics.Raycast(transform.position, Vector3.down, out hit); //raycast starting grid tile
+            chosentile = hit.transform.gameObject; //this tile is the tile we are working from
+            do //loop until the last tile is the killzonepathing, ie, the end of the path
+            {
+                if (GetGridCoords(chosentile)[0] + 1 >= 0 && GetGridCoords(chosentile)[0] + 1 <= CGG.GetLength(0) - 1) //is the tile to the right out of bounds?
                 {
-                    GetGridCoords(chosentile);
-                    if (x + 1 >= 0 && x + 1 <= CGG.GetLength(0) - 1)
-                    {
-                        CheckForOpenTile(CGG[x + 1, y]);
-                    }
-                    if (x - 1 >= 0 && x - 1 <= CGG.GetLength(0) - 1)
-                    {
-                        CheckForOpenTile(CGG[x - 1, y]);
-                    }
-                    if (y + 1 >= 0 && y + 1 <= CGG.GetLength(1) - 1)
-                    {
-                        CheckForOpenTile(CGG[x, y + 1]);
-                    }
-                    if (y - 1 >= 0 && y - 1 <= CGG.GetLength(1) - 1)
-                    {
-                        CheckForOpenTile(CGG[x, y - 1]);
-                    }
-                    if (OpenTiles.Count > 0)
-                    {
-                        float distance = 9999;
-                        foreach (GameObject item in OpenTiles)
-                        {
-                            if (item == CGG[x, 0])
-                            {
-                                FinalPath.Add(CGG[x, 0]);
-                                chosentile = killzonepathing;
-                            }
-                            else
-                            {
-                                if (Vector3.Distance(item.transform.position, killzonepathing.transform.position) <= distance)
-                                {
-                                    distance = Vector3.Distance(item.transform.position, killzonepathing.transform.position);
-                                    chosentile = item;
-                                }
-                            }
-                        }
-                        FinalPath.Add(chosentile);
-                    }
-                } while (chosentile != killzonepathing);
+                    CheckForOpenTile(CGG[GetGridCoords(chosentile)[0] + 1, GetGridCoords(chosentile)[1]]); //is this tile built upon?
+                }
+                if (GetGridCoords(chosentile)[0] - 1 >= 0 && GetGridCoords(chosentile)[0] - 1 <= CGG.GetLength(0) - 1)//is the tile to the left out of bounds?
+                {
+                    CheckForOpenTile(CGG[GetGridCoords(chosentile)[0] - 1, GetGridCoords(chosentile)[1]]);
+                }
+                if (GetGridCoords(chosentile)[1] + 1 >= 0 && GetGridCoords(chosentile)[1] + 1 <= CGG.GetLength(1) - 1)//is the tile above out of bounds?
+                {
+                    CheckForOpenTile(CGG[GetGridCoords(chosentile)[0], GetGridCoords(chosentile)[1] + 1]);
+                }
+                if (GetGridCoords(chosentile)[1] - 1 >= 0 && GetGridCoords(chosentile)[1] - 1 <= CGG.GetLength(1) - 1)//is the tile below out of bounds? (out of the grid array size, ie there is no tile below the last row of tiles)
+                {
+                    CheckForOpenTile(CGG[GetGridCoords(chosentile)[0], GetGridCoords(chosentile)[1] - 1]);
+                }
+                AddTile(); // get the best tile from opentiles and add it to the final path
+                OpenTiles.Clear();
+            } while (chosentile != killzonepathing); // while the path is not finished repeat
         }
-        else
+        else //if path is already written
         {
-            if (Vector3.Distance(FinalPath[0].transform.position, new Vector3(transform.position.x, 0, transform.position.z)) <= 8f)
+            Vector3 moveto = new Vector3(FinalPath[0].transform.position.x, transform.position.y, FinalPath[0].transform.position.z); //height fix for velocity of enemies. having the to position at the same height reduces stuttering in the movement
+            print(Vector3.Distance(FinalPath[0].transform.position + GetExtents(FinalPath[0]), new Vector3(transform.position.x, 0, transform.position.z)));
+            if (Vector3.Distance(FinalPath[0].transform.position + GetExtents(FinalPath[0]), new Vector3(transform.position.x, 0, transform.position.z)) <= 0.5f && FinalPath[0].name != "killzonepathing") //if the enemy has reached the next tile remove it
             {
-                FinalPath.Remove(FinalPath[0]);
+                FinalPath.Remove(FinalPath[0]); //note that this will never remove killzone pathing because the enemy game object this script is attached to, will be destroyed before it ever hits this mark
             }
-            if (FinalPath.Count > 0)
+            if (CurrentEnemyID == EnemyID.Charger) //chargers have different movement
             {
-                if (CurrentEnemyID == EnemyID.Charger)
-            {
-                try
-                {
-                    var CurrentMoveSpeed = Mathf.PingPong(Time.time * 100, MoveSpeed / Mathf.Sqrt(CurrentHP) + 3); if (FinalPath[0] != killzonepathing)
-                        if (FinalPath[0] != killzonepathing)
-                        {
-                            GetComponent<Rigidbody>().velocity = ((FinalPath[0].transform.position + FinalPath[0].GetComponent<Renderer>().bounds.extents) - transform.position) * CurrentMoveSpeed;
-                        }
-                        else
-                        {
-                            GetComponent<Rigidbody>().velocity = (FinalPath[0].transform.position - transform.position) * CurrentMoveSpeed;
-                        }
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
+                var CurrentMoveSpeed = Mathf.PingPong(Time.time, MoveSpeed / Mathf.Sqrt(CurrentHP) + 3); // pingpong speed of charger
+                print(FinalPath.Count + " " + name);
+                GetComponent<Rigidbody>().velocity = ((moveto + GetExtents(FinalPath[0])) - transform.position).normalized * CurrentMoveSpeed; //aim for the middle of each tile
+                
             }
-                if (FinalPath[0] != killzonepathing)
+            print(FinalPath.Count + " " + name);
+            GetComponent<Rigidbody>().velocity = ((moveto + GetExtents(FinalPath[0])) - transform.position).normalized * MoveSpeed;
+            
+            foreach (GameObject item in FinalPath) //since you build the path has a tile selected been built upon?
+            {
+                bool flag = false;
+                foreach (Transform item2 in item.transform)
                 {
-                    GetComponent<Rigidbody>().velocity = ((FinalPath[0].transform.position + FinalPath[0].GetComponent<Renderer>().bounds.extents) - transform.position) * MoveSpeed;
-                }
-                else
-                {
-                    GetComponent<Rigidbody>().velocity = (FinalPath[0].transform.position - transform.position) * MoveSpeed;
-                }
-                foreach (GameObject item in FinalPath)
-                {
-                    bool flag = false;
-                    foreach (Transform item2 in item.transform)
+                    if (item.name == "Tower")
                     {
-                        if (item.name == "Tower")
-                        {
-                            FinalPath.Clear();
-                            flag = true;
-                            break;
-                        }
+                        FinalPath.Clear(); //yes so rewrite path
+                        flag = true;
+                        break; //break inner loop
                     }
-                    if (flag)
-                    {
-                        break;
-                    }
+                }
+                if (flag)
+                {
+                    break; //break outer loop
                 }
             }
         }
     }
-    void GetGridCoords(GameObject tile)
+    int[] GetGridCoords(GameObject tile) //get the grid reference coordinates of the tile called
     {
-        bool flag = false;
-        for (x = 0; x < (CGG.GetLength(0) - 1); x++)
+        bool flag = false; //for cutting the second loop
+        int x = 0, y = 0;
+        for (x = 0; x < (CGG.GetLength(0) - 1); x++) //for each x on grid
         {
-            for (y = 0; y < (CGG.GetLength(1) - 1); y++)
+            for (y = 0; y < (CGG.GetLength(1) - 1); y++) //for each y on x
             {
-                if (CGG[x, y] == tile.transform.gameObject)
+                if (CGG[x, y] == tile.transform.gameObject) //is this x,y this tile?
                 {
-                    flag = true;
-                    break;
+                    flag = true; // also break xloop
+                    break; //yes x and y are now set correctly to correspond to the tiles position in the grid array, beak y loop
 
                 }
             }
-            if (flag)
+            if (flag) //when break yloop also break xloop BEFORE any additional counting
             {
                 break;
             }
         }
+        return new int[2] {x, y};
     }
-    void CheckForOpenTile(GameObject tile)
+    void CheckForOpenTile(GameObject tile) // check if the tile called is a viable tile to move to
     {
-        OpenTiles.Add(tile);
-        if (tile.transform.childCount > 0)
+        OpenTiles.Add(tile); //add tile to list
+        if (tile.transform.childCount > 0) //does tile have children?
         {
             foreach (Transform item in tile.transform)
             {
-                if (item.name == "Tower")
+                if (item.name == "Tower") //foreach child is child tower? ie tile is built upon
                 {
-                    OpenTiles.Remove(tile);
+                    OpenTiles.Remove(tile); //tile is invalid to move to
                 }
             }
         }
     }
+    void AddTile() //add tile from open tile list
+    {
+        if (OpenTiles.Count > 0) //are there any tiles in opentiles list?
+        {
+            float distance = 99999999; // starting distence vlaue must be larger than potential distence between tiles
+            foreach (GameObject item in OpenTiles) //for each possible tile
+            {
+                if (GetGridCoords(item)[1] == 0) //is this tile at the end of the grid?
+                {
+                    FinalPath.Add(CGG[GetGridCoords(item)[0], 0]); // yes it is, end the path witht he killzonepathing gameobject
+                    chosentile = killzonepathing; //this breaks the path building loop
+                    break;
+                }
+                else //the tile isnt the end tile
+                {
+                    if (Vector3.Distance(item.transform.position, killzonepathing.transform.position) <= distance) //is the distance between this tile  and the destination tile smaller than all previous tiles
+                    {
+                        distance = Vector3.Distance(item.transform.position, killzonepathing.transform.position); //overwrite smallest distance
+                        chosentile = item; // select tile as best choice
+                    }
+                }
+            }
+            FinalPath.Add(chosentile); //add tile to path
+        }
+    }
     void OnCollisionEnter(Collision col)
     {
-        if (String.Equals(col.transform.name, "KillZone"))
+        if (String.Equals(col.transform.name, "KillZone")) // if the enemy makes it to the end of the grid and collides with the killzone
         {
-            GameManager.FragmentEnemy(gameObject, 10, 15);
+            GameManager.FragmentEnemy(gameObject, 10, 15); //spawn fragments
             Destroy(killzonepathing);
-            Destroy(gameObject); //obj let through
-            if (GameManagerStuff.Population > 1)
+            Destroy(gameObject); //obj let through destory enemy
+            if (GameManagerStuff.Population > 1) //lost a population
             {
                 GameManagerStuff.Population--;
             }
@@ -280,9 +269,9 @@ public class EnemyFunction : MonoBehaviour
     {
         if (System.String.Equals(col.transform.name, "Projectile"))
         {
-            if (CurrentEnemyID == EnemyID.Teleport)
+            if (CurrentEnemyID == EnemyID.Teleport) //teleports on damage taken
             {
-                gameObject.transform.position = gameObject.transform.position.ParameterChange(X: (UnityEngine.Random.Range(0, 110)), Z: (UnityEngine.Random.Range(gameObject.transform.position.z, 190)));
+                transform.position = transform.position.ParameterChange(X: (UnityEngine.Random.Range(0, 110)), Z: (UnityEngine.Random.Range(transform.position.z, 190)));
             }
             if (CurrentEnemyID == EnemyID.Shielded) //This unit is immune to tower damage
             {
@@ -290,7 +279,7 @@ public class EnemyFunction : MonoBehaviour
             }
             else
             {
-                DamageDealt = col.transform.parent.GetComponent<TowerBehaviour>().GetDamage(); //Get tower damage
+                DamageDealt = col.transform.parent.GetComponent<TowerBehaviour>().GetDamage(); //get tower damage
             }
             CurrentHP += DamageDealt / ArmourVal;
             GameManager.DisplayValue(DamageDealt.ToString(), gameObject.transform.position);
@@ -340,8 +329,8 @@ public class EnemyFunction : MonoBehaviour
             case EnemyID.Bonus:
                 ReAssignTypeVal(Color.black, id.ToString(), 100, 2, 200, 1, 8);
                 GameObject BonusParent = new GameObject(gameObject.name);
-                BonusParent.gameObject.transform.SetParent(gameObject.transform.parent);
-                gameObject.transform.SetParent(BonusParent.transform);
+                BonusParent.gameObject.transform.SetParent(transform.parent);
+                transform.SetParent(BonusParent.transform);
                 break;
             case EnemyID.Child:
                 if (UnityEngine.Random.value > .5f)
@@ -358,25 +347,36 @@ public class EnemyFunction : MonoBehaviour
                 break;
         }
     }
-    internal void ReAssignTypeVal(Color32 Color, string name = "DefaultBaddie", int movespeed = 15, int maxhp = 10, int enemyvalue = 10, float armourvalue = 1, int scalar = 10)
+    internal void ReAssignTypeVal(Color32 Color, string name = "DefaultBaddie", int movespeed = 15, int maxhp = 10, int enemyvalue = 10, float armourvalue = 1, int scalar = 10) //enemy type attributes setting
     {
         MoveSpeed = movespeed;
         MaxHP = maxhp;
         EnemyValue = enemyvalue;
         ArmourVal = armourvalue;
-        gameObject.transform.localScale *= scalar;
-        gameObject.name = name;
-        gameObject.GetComponent<Renderer>().material.color = Color;
-        gameObject.transform.position += Vector3.up * gameObject.GetComponent<Renderer>().bounds.size.y / 2;
+        transform.localScale *= scalar;
+        transform.name = name;
+        GetComponent<Renderer>().material.color = Color;
+        transform.position += Vector3.up * gameObject.GetComponent<Renderer>().bounds.size.y / 2;
     }
     internal IEnumerator EnemyActions(string Pass, Vector3 Pos = new Vector3())
     {
-        if (System.String.Equals(Pass, "Healing"))
+        if (System.String.Equals(Pass, "Healing")) //heal 1 damage to healer enemy type every 3 seconds
         {
             yield return new WaitForSeconds(3); //spawn interval
             CurrentHP++;
             GameManager.DisplayValue("+1", gameObject.transform.position);
             StartCoroutine(EnemyActions("Healing"));
+        }
+    }
+    internal Vector3 GetExtents(GameObject gameObj) //one of the 20 game objects i have to use this to get extents has no renderer attached, this is a lazy way to ignore that
+    {
+        try 
+        {
+            return gameObj.GetComponent<Renderer>().bounds.extents;
+        }
+        catch (Exception)
+        {
+            return Vector3.zero;
         }
     }
 }

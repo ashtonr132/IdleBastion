@@ -32,7 +32,7 @@ public class TowerBehaviour : MonoBehaviour {
     }
     void Update()//Update is called once per frame
     {
-        foreach (Transform enemy in EnemyController.transform)
+        foreach (Transform enemy in EnemyController.transform) //target enemy
         {
             if (enemy != null)
             {
@@ -69,7 +69,7 @@ public class TowerBehaviour : MonoBehaviour {
         }
         StartCoroutine(Fire());
     }
-    internal void SetTowerType(TowerID ID)
+    internal void SetTowerType(TowerID ID) //different tower types set here
     {
         switch (ID)
         {
@@ -79,7 +79,7 @@ public class TowerBehaviour : MonoBehaviour {
                     break;
         }
     }
-    public int GetDamage()
+    public int GetDamage() //damage this tower currently does
     {
         return Damage;
     }

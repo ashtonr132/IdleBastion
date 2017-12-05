@@ -12,8 +12,8 @@ public class GameManagerStuff : MonoBehaviour
     {
         PlayerUI = GameObject.Find("Player").transform;
         Canvas = GameObject.Find("Canvas");
-        FragmentEncapsulation = new GameObject("FragmentEncapsulation");
-        FragmentEncapsulation.transform.position = new Vector3(-100, 0, 0);
+        FragmentEncapsulation = new GameObject("FragmentEncapsulation"); //unity tidyness
+        FragmentEncapsulation.transform.position = new Vector3(-100, 0, 0); //out of the way
         FragmentEncapsulation.transform.SetParent(GameObject.Find("EnemyController").transform);
     }
     void Update()
@@ -22,7 +22,7 @@ public class GameManagerStuff : MonoBehaviour
         {
             TotalLifeTimeClicks++;
         }
-        if (PlayerUI.gameObject.activeSelf)
+        if (PlayerUI.gameObject.activeSelf) //update ui when active
         {
             PlayerUI.GetChild(1).GetChild(0).GetComponent<Text>().text = Population.ToString();
             PlayerUI.GetChild(2).GetChild(0).GetComponent<Text>().text = Mathf.Abs(Damage).ToString();
@@ -98,6 +98,6 @@ public static class HelperClass
 {
     internal static Vector3 ParameterChange(this Vector3 Vec, float? X = null, float? Y = null, float? Z = null) //Quick rewrite of readonly variable usings optional parameters as nullables to keep uneeded variables the same
     {
-        return new Vector3(X ?? Vec.x, Y ?? Vec.y,  Z ?? Vec.z); //If is not referred called with, is null, if is null usses the preexisting value
+        return new Vector3(X ?? Vec.x, Y ?? Vec.y,  Z ?? Vec.z); //If is not referred called with, is null, if is null usses the pre-existing value
     }
 }
