@@ -58,6 +58,7 @@ public class EnemySpawning : MonoBehaviour
         Enemy.transform.SetParent(gameObject.transform); //Orderliness
         Enemy.AddComponent<EnemyFunction>();
         Enemy.GetComponent<EnemyFunction>().EnemyType(id);
+        GameManager.PushToEventLog("Spawning " + Enemy.name);
     }
     private EnemyFunction.EnemyID[] GenerateStage()
     {
