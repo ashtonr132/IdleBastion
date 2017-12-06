@@ -17,7 +17,7 @@ public class ButtonHandler : MonoBehaviour
         GameObject.Find("UI/Menu/ExitGame").GetComponent<Button>().onClick.AddListener(QuitGame); //quit button func
         foreach (Transform button in TowerUI.transform)
         {
-            if (button.name != "Text")
+            if (button.name != "Text" && button.name != "Current Cost")
             {
                 button.GetComponent<Button>().onClick.AddListener(delegate { TowerFunc(button.gameObject); });
             }
@@ -52,6 +52,12 @@ public class ButtonHandler : MonoBehaviour
             {
                 switch (item.name)
                 {
+                    case "Current Cost":
+                        if (TowerBehaviour.LastTowerSelected != null)
+                        {
+                            item.GetChild(0).GetComponent<Text>().text = "Current Upgrade Cost : " + TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost;
+                        }
+                        break;
                     case "Attack Speed":
                         if (TowerBehaviour.LastTowerSelected != null)
                         {

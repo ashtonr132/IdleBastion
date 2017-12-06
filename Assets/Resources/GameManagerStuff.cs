@@ -65,6 +65,7 @@ public class GameManagerStuff : MonoBehaviour
             Destroy(Fragment.GetComponent<MeshCollider>()); Fragment.AddComponent<BoxCollider>(); Fragment.AddComponent<Rigidbody>();
             Fragment.GetComponent<Rigidbody>().AddForce(Random.Range(-500f, 500f), Random.Range(-1000, 1000), Random.Range(-500, 500));
             Fragment.transform.SetParent(FragmentEncapsulation.transform);
+            Fragment.GetComponent<BoxCollider>().size /= 2.5f;
             StartCoroutine(FadeOut(Fragment, 0.15f));
         }
     }
