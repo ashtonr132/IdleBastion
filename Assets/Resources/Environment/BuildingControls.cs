@@ -43,6 +43,7 @@ public class BuildingControls : MonoBehaviour
                         Tower.transform.position = Indicator.transform.position + Indicator.transform.parent.GetComponent<Renderer>().bounds.extents;
                         Tower.transform.SetParent(Indicator.transform.parent);
                         Tower.transform.localScale /= 1.25f;
+                        GameManager.PushToEventLog("Tower Built.");
                         GameManagerStuff.TowersBuilt++;
                     }
                     else

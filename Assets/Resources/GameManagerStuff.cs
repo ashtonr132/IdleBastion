@@ -25,11 +25,10 @@ public class GameManagerStuff : MonoBehaviour
         if (PlayerUI.gameObject.activeSelf) //update ui when active
         {
             PlayerUI.GetChild(1).GetChild(0).GetComponent<Text>().text = Population.ToString();
-            PlayerUI.GetChild(2).GetChild(0).GetComponent<Text>().text = Mathf.Abs(Damage).ToString();
-            PlayerUI.GetChild(3).GetChild(0).GetComponent<Text>().text = TotalLifeTimeClicks.ToString();
-            PlayerUI.GetChild(4).GetChild(0).GetComponent<Text>().text = Currency.ToString();
-            PlayerUI.GetChild(5).GetChild(0).GetComponent<Text>().text = TowersBuilt.ToString();
-            PlayerUI.GetChild(6).GetChild(0).GetComponent<Text>().text = EnemiesKilled.ToString();
+            PlayerUI.GetChild(2).GetChild(0).GetComponent<Text>().text = TotalLifeTimeClicks.ToString();
+            PlayerUI.GetChild(3).GetChild(0).GetComponent<Text>().text = Currency.ToString();
+            PlayerUI.GetChild(4).GetChild(0).GetComponent<Text>().text = TowersBuilt.ToString();
+            PlayerUI.GetChild(5).GetChild(0).GetComponent<Text>().text = EnemiesKilled.ToString();
         }
     }
     internal GameObject AssignComponents(string name, Mesh mesh, Material mat, bool needsRB = false) //Setting up new game objects quickly
@@ -91,6 +90,21 @@ public class GameManagerStuff : MonoBehaviour
         else
         {
             Destroy(FadeMe);
+        }
+    }
+    internal void NotEnoughGold()
+    {
+        PushToEventLog("Not Enough Gold");
+    }
+    internal bool CanAfford(float f)
+    {
+        if (f <= Currency)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 }

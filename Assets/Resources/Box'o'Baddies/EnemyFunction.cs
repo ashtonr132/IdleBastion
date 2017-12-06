@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class EnemyFunction : MonoBehaviour
 {
-    internal int EnemyValue, DamageDealt; //initialising variables needed
-    internal float MoveSpeed, MaxHP, ArmourVal, CurrentHP;
+    internal int EnemyValue; //initialising variables needed
+    internal float MoveSpeed, MaxHP, ArmourVal, CurrentHP, DamageDealt;
     private GameManagerStuff GameManager;
     private EnemySpawning ESp;
     private GameObject[,] CGG;
@@ -92,7 +92,7 @@ public class EnemyFunction : MonoBehaviour
                     GameManager.FragmentEnemy(gameObject, 1, 1);
                     if (CurrentEnemyID == EnemyID.Teleport)
                     {
-                        gameObject.transform.position = gameObject.transform.position.ParameterChange(X: (UnityEngine.Random.Range(0, 110)), Z: (UnityEngine.Random.Range(gameObject.transform.position.z, 190)));
+                        Teleport(gameObject);
                     }
                 }
             }
@@ -157,7 +157,6 @@ public class EnemyFunction : MonoBehaviour
         else //if path is already written
         {
             Vector3 moveto = new Vector3(FinalPath[0].transform.position.x, transform.position.y, FinalPath[0].transform.position.z); //height fix for velocity of enemies. having the to position at the same height reduces stuttering in the movement
-            print(Vector3.Distance(FinalPath[0].transform.position + GetExtents(FinalPath[0]), new Vector3(transform.position.x, 0, transform.position.z)));
             if (Vector3.Distance(FinalPath[0].transform.position + GetExtents(FinalPath[0]), new Vector3(transform.position.x, 0, transform.position.z)) <= 0.5f && FinalPath[0].name != "killzonepathing") //if the enemy has reached the next tile remove it
             {
                 FinalPath.Remove(FinalPath[0]); //note that this will never remove killzone pathing because the enemy game object this script is attached to, will be destroyed before it ever hits this mark
@@ -165,11 +164,11 @@ public class EnemyFunction : MonoBehaviour
             if (CurrentEnemyID == EnemyID.Charger) //chargers have different movement
             {
                 var CurrentMoveSpeed = Mathf.PingPong(Time.time, MoveSpeed / Mathf.Sqrt(CurrentHP) + 3); // pingpong speed of charger
-                print(FinalPath.Count + " " + name);
+                //print(FinalPath.Count + " " + name);
                 GetComponent<Rigidbody>().velocity = ((moveto + GetExtents(FinalPath[0])) - transform.position).normalized * CurrentMoveSpeed; //aim for the middle of each tile
                 
             }
-            print(FinalPath.Count + " " + name);
+            //print(FinalPath.Count + " " + name);
             GetComponent<Rigidbody>().velocity = ((moveto + GetExtents(FinalPath[0])) - transform.position).normalized * MoveSpeed;
             
             foreach (GameObject item in FinalPath) //since you build the path has a tile selected been built upon?
@@ -271,7 +270,7 @@ public class EnemyFunction : MonoBehaviour
         {
             if (CurrentEnemyID == EnemyID.Teleport) //teleports on damage taken
             {
-                transform.position = transform.position.ParameterChange(X: (UnityEngine.Random.Range(0, 110)), Z: (UnityEngine.Random.Range(transform.position.z, 190)));
+                Teleport(gameObject);
             }
             if (CurrentEnemyID == EnemyID.Shielded) //This unit is immune to tower damage
             {
@@ -281,7 +280,11 @@ public class EnemyFunction : MonoBehaviour
             {
                 DamageDealt = col.transform.parent.GetComponent<TowerBehaviour>().GetDamage(); //get tower damage
             }
-            CurrentHP += DamageDealt / ArmourVal;
+            CurrentHP += DamageDealt / (ArmourVal/ col.transform.parent.GetComponent<TowerBehaviour>().armourpiercingpc * 100);
+            if (CurrentHP <= 0)
+            {
+                GameManagerStuff.Currency += col.transform.parent.GetComponent<TowerBehaviour>().BonusGold;
+            }
             GameManager.DisplayValue(DamageDealt.ToString(), gameObject.transform.position);
             GameManager.FragmentEnemy(gameObject, 1, 1);
             if (col.gameObject != null) //Destroy the bullet on impact, it also has a destroy timer hence the if isnotnull
@@ -378,5 +381,10 @@ public class EnemyFunction : MonoBehaviour
         {
             return Vector3.zero;
         }
+    }
+    internal void Teleport(GameObject gt)
+    {
+        FinalPath.Clear();
+        gt.transform.position = gt.transform.position.ParameterChange(X: (UnityEngine.Random.Range(0, 110)), Z: (UnityEngine.Random.Range(gt.transform.position.z, 190)));
     }
 }

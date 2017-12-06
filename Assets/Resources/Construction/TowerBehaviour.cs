@@ -4,8 +4,8 @@ using System;
 
 public class TowerBehaviour : MonoBehaviour {
 
-    internal int Damage = -1, Cost = 100, Range = 50, ProjectileSpeed = 5;
-    internal float FireRate = 0.25f, Accuracy = 1.25f;
+    internal int Cost = 100, Range = 50, ProjectileSpeed = 5, BonusGold = 0;
+    internal float FireRate = 0.25f, Accuracy = 1.25f, Damage = -1, armourpiercingpc = 0;
     private GameObject EnemyController, Target = null;
     internal static GameObject LastTowerSelected;
     private GameManagerStuff GameManager;
@@ -20,7 +20,7 @@ public class TowerBehaviour : MonoBehaviour {
         EnemyController = GameObject.Find("EnemyController");
         if (GameManagerStuff.Currency - Cost < 0)
         {
-            GameManager.PushToEventLog("This exceeds your current gold.");
+            GameManager.PushToEventLog("Not Enough Gold.");
             Destroy(gameObject);
         }
         else
@@ -79,7 +79,7 @@ public class TowerBehaviour : MonoBehaviour {
                     break;
         }
     }
-    public int GetDamage() //damage this tower currently does
+    public float GetDamage() //damage this tower currently does
     {
         return Damage;
     }
