@@ -118,8 +118,8 @@ public class EnemyFunction : MonoBehaviour
             AudioSource.PlayClipAtPoint(DeathSound, maincamera.transform.position, 0.03f);
             if (CurrentEnemyID == EnemyID.Mother)
             {
-                ESp.SpawnBaddie(EnemyID.Child, transform.position + Vector3.right * 3);
-                ESp.SpawnBaddie(EnemyID.Child, transform.position + Vector3.left * 3);
+                ESp.SpawnBaddie(EnemyID.Child, transform.position + Vector3.right * 5);
+                ESp.SpawnBaddie(EnemyID.Child, transform.position + Vector3.left * 5);
                 Destroy(killzonepathing);
                 Destroy(gameObject);
             }
@@ -323,7 +323,7 @@ public class EnemyFunction : MonoBehaviour
             GameManager.FragmentEnemy(gameObject, 10, 15); //spawn fragments
             Destroy(killzonepathing);
             Destroy(gameObject); //obj let through destory enemy
-            if (GameManagerStuff.Population > 1) //lost a population
+            if (GameManagerStuff.Population > 0) //lost a population
             {
                 GameManagerStuff.Population--;
             }
