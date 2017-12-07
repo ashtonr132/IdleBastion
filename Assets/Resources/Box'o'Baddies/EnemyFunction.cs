@@ -11,9 +11,10 @@ public class EnemyFunction : MonoBehaviour
     private EnemySpawning ESp;
     private GameObject[,] CGG;
     private Vector3 ResPos;
-    private GameObject chosentile;
+    private GameObject chosentile, maincamera;
     public List<GameObject> FinalPath = new List<GameObject>(), OpenTiles = new List<GameObject>(), ClosedTiles = new List<GameObject>();
     private GameObject killzonepathing;
+    internal AudioClip DeathSound, DamageSound, KillZoneSound, TeleportSound;
     internal enum EnemyID //defineing enemy type
     {
         Default, Teleport, Phasing,
@@ -25,6 +26,11 @@ public class EnemyFunction : MonoBehaviour
     internal EnemyID CurrentEnemyID; //this enemies type]
     private void Awake()
     {
+        maincamera = GameObject.Find("Main Camera");
+        TeleportSound = (AudioClip)Resources.Load("Audio/Sound Effects/RandomSfx/pot");
+        KillZoneSound = (AudioClip)Resources.Load("Audio/Sound Effects/RandomSfx/lvlup");
+        DeathSound = (AudioClip)Resources.Load("Audio/Sound Effects/AbstractPackSFX/Files/AbstractSfx/39");
+        DamageSound = (AudioClip)Resources.Load("Audio/Sound Effects/AbstractPackSFX/Files/AbstractSfx/73");
         CGG = GameObject.Find("GameGrid").GetComponent<CreateGameGrid>().GetGrid(); //finding components needed
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
         ESp = GameObject.Find("EnemyController").GetComponent<EnemySpawning>();
@@ -65,7 +71,7 @@ public class EnemyFunction : MonoBehaviour
                 break;
             case EnemyID.Phasing:
                 Color col = GetComponent<Renderer>().material.color;
-                GetComponent<Renderer>().material.color = new Color(col.r, col.g, col.b, Mathf.PingPong(Time.time / 2, 1));
+                GetComponent<Renderer>().material.color = new Color(col.r, col.g, col.b, Mathf.PingPong(Time.time / 4, 1));
                 StandardMovement();
                 break;
             case EnemyID.Resurrecting:
@@ -90,9 +96,16 @@ public class EnemyFunction : MonoBehaviour
             {
                 if (hit.transform == transform) //Is the ray hitting this transform?
                 {
-                    CurrentHP += GameManagerStuff.Damage / ArmourVal;
-                    GameManager.DisplayValue((GameManagerStuff.Damage / ArmourVal).ToString(), gameObject.transform.position);
+                    if (UnityEngine.Random.Range(0, 20) <= 1)
+                    {
+                        AudioSource.PlayClipAtPoint(DamageSound, maincamera.transform.position, 0.03f);
+                    }
+                    
+                    DamageDealt = GameManager.Damage;
+                    CurrentHP += (DamageDealt / (ArmourVal / GameManager.armourpiercingpc)) / 10;
+                    GameManager.DisplayValue(((DamageDealt / (ArmourVal / GameManager.armourpiercingpc)) / 10).ToString(), gameObject.transform.position);
                     GameManager.FragmentEnemy(gameObject, 1, 1);
+                    GameManagerStuff.Currency += GameManager.bonus;
                     if (CurrentEnemyID == EnemyID.Teleport)
                     {
                         Teleport(gameObject);
@@ -102,6 +115,7 @@ public class EnemyFunction : MonoBehaviour
         }
         if (CurrentHP <= 0)
         {
+            AudioSource.PlayClipAtPoint(DeathSound, maincamera.transform.position, 0.03f);
             if (CurrentEnemyID == EnemyID.Mother)
             {
                 ESp.SpawnBaddie(EnemyID.Child, transform.position + Vector3.right * 3);
@@ -133,38 +147,48 @@ public class EnemyFunction : MonoBehaviour
         if (FinalPath.Count <= 0) //if path is not written
         {
             RaycastHit hit;
-            Physics.Raycast(transform.position, Vector3.down, out hit); //raycast starting grid tile
-            chosentile = hit.transform.gameObject; //this tile is the tile we are working from
-            var i = 0;
-            do //loop until the last tile is the killzonepathing, ie, the end of the path
+            if (Physics.Raycast(transform.position, Vector3.down, out hit))//raycast starting grid tile
             {
-                i++;
-                if (GetGridCoords(chosentile).x + 1 >= 0 && GetGridCoords(chosentile).x + 1 <= CGG.GetLength(0) - 1) //is the tile to the right out of bounds?
+                chosentile = hit.transform.gameObject; //this tile is the tile we are working from
+            }
+            else
+            {
+                chosentile = null;
+                Destroy(gameObject); //this unit has gotten knocked off the grid and does not have a path generated
+            }
+            if (chosentile != null)
+            {
+                var i = 0;
+                do //loop until the last tile is the killzonepathing, ie, the end of the path
                 {
-                    CheckForOpenTile(CGG[(int)GetGridCoords(chosentile).x + 1, (int)GetGridCoords(chosentile).y]); //is this tile built upon?
-                }
-                if (GetGridCoords(chosentile).x - 1 >= 0 && GetGridCoords(chosentile).x - 1 <= CGG.GetLength(0) - 1)//is the tile to the left out of bounds?
-                {
-                    CheckForOpenTile(CGG[(int)GetGridCoords(chosentile).x - 1, (int)GetGridCoords(chosentile).y]);
-                }
-                if (GetGridCoords(chosentile).y + 1 >= 0 && GetGridCoords(chosentile).y + 1 <= CGG.GetLength(1) - 1)//is the tile above out of bounds?
-                {
-                    CheckForOpenTile(CGG[(int)GetGridCoords(chosentile).x, (int)GetGridCoords(chosentile).y + 1]);
-                }
-                if (GetGridCoords(chosentile).y - 1 >= 0 && GetGridCoords(chosentile).y - 1 <= CGG.GetLength(1) - 1)//is the tile below out of bounds? (out of the grid array size, ie there is no tile below the last row of tiles)
-                {
-                    CheckForOpenTile(CGG[(int)GetGridCoords(chosentile).x, (int)GetGridCoords(chosentile).y - 1]);
-                }
-                AddTile(); // get the best tile from opentiles and add it to the final path
-                OpenTiles.Clear();
-                if (i >= (CGG.GetLength(0)-1) * (CGG.GetLength(1)-1)) //if the loop gets out of control or the enemy gets stuck between closed tiles, the closed tiles are reset and the loop is broken and restarted
-                {
-                    ClosedTiles.Clear();
-                    ClosedTiles.Add(hit.transform.gameObject); // this stops 2 long final path loops, still creates longer pathing problems though
+                    i++;
+                    if (GetGridCoords(chosentile).x + 1 >= 0 && GetGridCoords(chosentile).x + 1 <= CGG.GetLength(0) - 1) //is the tile to the right out of bounds?
+                    {
+                        CheckForOpenTile(CGG[(int)GetGridCoords(chosentile).x + 1, (int)GetGridCoords(chosentile).y]); //is this tile built upon?
+                    }
+                    if (GetGridCoords(chosentile).x - 1 >= 0 && GetGridCoords(chosentile).x - 1 <= CGG.GetLength(0) - 1)//is the tile to the left out of bounds?
+                    {
+                        CheckForOpenTile(CGG[(int)GetGridCoords(chosentile).x - 1, (int)GetGridCoords(chosentile).y]);
+                    }
+                    if (GetGridCoords(chosentile).y + 1 >= 0 && GetGridCoords(chosentile).y + 1 <= CGG.GetLength(1) - 1)//is the tile above out of bounds?
+                    {
+                        CheckForOpenTile(CGG[(int)GetGridCoords(chosentile).x, (int)GetGridCoords(chosentile).y + 1]);
+                    }
+                    if (GetGridCoords(chosentile).y - 1 >= 0 && GetGridCoords(chosentile).y - 1 <= CGG.GetLength(1) - 1)//is the tile below out of bounds? (out of the grid array size, ie there is no tile below the last row of tiles)
+                    {
+                        CheckForOpenTile(CGG[(int)GetGridCoords(chosentile).x, (int)GetGridCoords(chosentile).y - 1]);
+                    }
+                    AddTile(); // get the best tile from opentiles and add it to the final path
+                    OpenTiles.Clear();
+                    if (i >= (CGG.GetLength(0) - 1) * (CGG.GetLength(1) - 1)) //if the loop gets out of control or the enemy gets stuck between closed tiles, the closed tiles are reset and the loop is broken and restarted
+                    {
+                        ClosedTiles.Clear();
+                        ClosedTiles.Add(hit.transform.gameObject); // this stops 2 long final path loops, still creates longer pathing problems though
 
-                    break;
-                }
-            } while (chosentile != killzonepathing); // while the path is not finished repeat
+                        break;
+                    }
+                } while (chosentile != killzonepathing); // while the path is not finished repeat
+            }
         }
         else //if path is already written
         {
@@ -295,6 +319,7 @@ public class EnemyFunction : MonoBehaviour
     {
         if (String.Equals(col.transform.name, "KillZone")) // if the enemy makes it to the end of the grid and collides with the killzone
         {
+            AudioSource.PlayClipAtPoint(KillZoneSound, maincamera.transform.position, 0.03f);
             GameManager.FragmentEnemy(gameObject, 10, 15); //spawn fragments
             Destroy(killzonepathing);
             Destroy(gameObject); //obj let through destory enemy
@@ -320,6 +345,10 @@ public class EnemyFunction : MonoBehaviour
             {
                 DamageDealt = col.transform.parent.GetComponent<TowerBehaviour>().GetDamage(); //get tower damage
             }
+            if (UnityEngine.Random.Range(0, 20) <= 1)
+            {
+                AudioSource.PlayClipAtPoint(DamageSound, maincamera.transform.position, 0.03f);
+            }
             CurrentHP += (DamageDealt / (ArmourVal / col.transform.parent.GetComponent<TowerBehaviour>().armourpiercingpc))/10;
             if (CurrentHP <= 0)
             {
@@ -339,7 +368,7 @@ public class EnemyFunction : MonoBehaviour
         switch (CurrentEnemyID)
         {
             case EnemyID.Teleport:
-                ReAssignTypeVal(Color.white, id.ToString(), movespeed:20, enemyvalue:20);
+                ReAssignTypeVal(Color.white, id.ToString(), 20, 5, enemyvalue:20);
                 break;
             case EnemyID.Phasing:
                 ReAssignTypeVal(Color.black, id.ToString(), maxhp: 4, enemyvalue: 15);
@@ -388,6 +417,7 @@ public class EnemyFunction : MonoBehaviour
             default:
                 ReAssignTypeVal(new Color32(65, 90, 190, 255));
                 break;
+                //support that heals other units
         }
     }
     internal void ReAssignTypeVal(Color32 Color, string name = "DefaultBaddie", int movespeed = 15, int maxhp = 10, int enemyvalue = 10, float armourvalue = 1, int scalar = 10) //enemy type attributes setting
@@ -425,7 +455,9 @@ public class EnemyFunction : MonoBehaviour
     internal void Teleport(GameObject gt)
     {
         FinalPath.Clear();
-        gt.transform.position = gt.transform.position.ParameterChange(X: (UnityEngine.Random.Range(0, 110)), Z: (UnityEngine.Random.Range(gt.transform.position.z, 190)));
-        killzonepathing.transform.position = new Vector3(gt.transform.position.x, gt.transform.position.y, killzonepathing.transform.position.z);
+        Vector3 temp = gt.transform.position.ParameterChange(X: (UnityEngine.Random.Range(0, 110)), Z: (UnityEngine.Random.Range(gt.transform.position.z, 190)));
+        gt.transform.position = temp;
+        killzonepathing.transform.position = new Vector3(temp.x, temp.y, killzonepathing.transform.position.z);
+        AudioSource.PlayClipAtPoint(TeleportSound, maincamera.transform.position, 0.03f);
     }
 }

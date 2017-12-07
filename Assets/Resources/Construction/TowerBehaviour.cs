@@ -9,6 +9,7 @@ public class TowerBehaviour : MonoBehaviour {
     private GameObject EnemyController, Target = null;
     internal static GameObject LastTowerSelected;
     private GameManagerStuff GameManager;
+    private AudioClip ShootSound;
     internal enum TowerID
     {
         Default
@@ -18,6 +19,7 @@ public class TowerBehaviour : MonoBehaviour {
     {
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
         EnemyController = GameObject.Find("EnemyController");
+        ShootSound = (AudioClip)Resources.Load("Audio/Sound Effects/RandomSfx/appleeat");
         if (GameManagerStuff.Currency - Cost < 0)
         {
             GameManager.PushToEventLog("Not Enough Gold.");
@@ -64,6 +66,7 @@ public class TowerBehaviour : MonoBehaviour {
             Projectile.GetComponent<SphereCollider>().isTrigger = true;
             Projectile.transform.position = gameObject.transform.position + new Vector3(0, gameObject.GetComponent<MeshCollider>().bounds.size.y);
             Projectile.GetComponent<Rigidbody>().velocity = (((UnityEngine.Random.onUnitSphere / Accuracy) + Target.transform.position) - Projectile.transform.position) * ProjectileSpeed;
+            AudioSource.PlayClipAtPoint(ShootSound, GameObject.Find("Main Camera").transform.position, 0.02f);
             Projectile.transform.SetParent(gameObject.transform);
             Destroy(Projectile, ProjectileSpeed/2);
         }

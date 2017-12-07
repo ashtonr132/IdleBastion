@@ -3,13 +3,16 @@
 public class BuildingControls : MonoBehaviour
 {
     private GameObject[,] Grid;
-    private GameObject SelGridPiece, Indicator;
+    private GameObject SelGridPiece, Indicator, maincamera;
     private CreateGameGrid CGG;
     private Vector3 IndPlacement;
     private GameManagerStuff GameManager;
+    private AudioClip BuildSound;
     
     void Start()// Use this for initialization
     {
+        maincamera = GameObject.Find("Main Camera");
+        BuildSound = (AudioClip)Resources.Load("Audio/Sound Effects/RandomSfx/swhit");
         CGG = gameObject.GetComponent<CreateGameGrid>();
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
         Grid = CGG.GetGrid();
@@ -44,6 +47,7 @@ public class BuildingControls : MonoBehaviour
                         Tower.transform.SetParent(Indicator.transform.parent);
                         Tower.transform.localScale /= 1.25f;
                         GameManager.PushToEventLog("Tower Built.");
+                        AudioSource.PlayClipAtPoint(BuildSound, maincamera.transform.position, 0.02f);
                         GameManagerStuff.TowersBuilt++;
                     }
                     else

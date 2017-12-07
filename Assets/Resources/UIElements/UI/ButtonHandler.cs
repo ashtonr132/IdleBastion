@@ -8,11 +8,12 @@ public class ButtonHandler : MonoBehaviour
     Transform[] trs;
     Text UIIndicatorText;
     private GameManagerStuff GameManager;
-    private GameObject TowerUI;
+    private GameObject TowerUI, ClickerUI;
     private void Start()
     {
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
         TowerUI = GameObject.Find("UI/Tower");
+        ClickerUI = GameObject.Find("UI/Clicker");
         GameObject.Find("UI/Micro/Buy Gold").GetComponent<Button>().onClick.AddListener(AddGold); //addgold button func
         GameObject.Find("UI/Menu/ExitGame").GetComponent<Button>().onClick.AddListener(QuitGame); //quit button func
         foreach (Transform button in TowerUI.transform)
@@ -20,6 +21,13 @@ public class ButtonHandler : MonoBehaviour
             if (button.name != "Text" && button.name != "Current Cost")
             {
                 button.GetComponent<Button>().onClick.AddListener(delegate { TowerFunc(button.gameObject); });
+            }
+        }
+        foreach (Transform button in ClickerUI.transform)
+        {
+            if (button.name != "Text" && button.name != "Current Cost")
+            {
+                button.GetComponent<Button>().onClick.AddListener(delegate { ClickerFunc(button.gameObject); });
             }
         }
         UIIndicatorText = GameObject.Find("UIIndicator").transform.GetChild(0).GetComponent<Text>();
@@ -97,8 +105,29 @@ public class ButtonHandler : MonoBehaviour
                     case "Armour Piercing":
                         if (TowerBehaviour.LastTowerSelected != null)
                         {
-                            item.GetChild(0).GetComponent<Text>().text = "Armour Piercing: " + TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().armourpiercingpc + "%";
+                            item.GetChild(0).GetComponent<Text>().text = "Armour Piercing : " + TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().armourpiercingpc + "%";
                         }
+                        break;
+                }
+            }
+        }
+        if (ClickerUI.activeSelf)
+        {
+            foreach (Transform item in ClickerUI.transform)
+            {
+                switch (item.name)
+                {
+                    case "Current Cost":
+                        item.GetChild(0).GetComponent<Text>().text = "Current Upgrade Cost : " + GameManager.cost.ToString();
+                        break;
+                    case "Kill Bonus":
+                        item.GetChild(0).GetComponent<Text>().text = "Kill Bonus : " + GameManager.bonus.ToString();
+                        break;
+                    case "Armour Piercing":
+                        item.GetChild(0).GetComponent<Text>().text = "Armour Piercing : " + GameManager.armourpiercingpc.ToString() + "%";
+                        break;
+                    case "Damage":
+                        item.GetChild(0).GetComponent<Text>().text = "Damage" + Mathf.Abs(GameManager.Damage).ToString();
                         break;
                 }
             }
@@ -142,34 +171,87 @@ public class ButtonHandler : MonoBehaviour
     {
         Application.Quit();
     }
-    private void TowerFunc(GameObject gO)
+    private void ClickerFunc(GameObject gO)
     {
         switch (gO.name)
         {
-            case "Destroy Tower":
-                Destroy(TowerBehaviour.LastTowerSelected);
+            case "Damage":
+                if (GameManager.CanAfford(GameManager.cost))
+                {
+                    GameManagerStuff.Currency -= GameManager.cost;
+                    GameManager.cost += 10;
+                    GameManager.Damage -= 0.5f;
+                }
+                break;
+            case "Kill Bonus":
+                if (GameManager.CanAfford(GameManager.cost))
+                {
+                    GameManagerStuff.Currency -= GameManager.cost;
+                    GameManager.bonus += 15;
+                    GameManager.cost += 10;
+                }
                 break;
             case "Armour Piercing":
-                if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
+                if (GameManager.CanAfford(GameManager.cost))
                 {
-                    if (TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().armourpiercingpc <= 90)
+                    if (GameManager.armourpiercingpc <= 90)
                     {
-                        TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().armourpiercingpc += 10;
-                        GameManagerStuff.Currency -= TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost;
-                        TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost += 10;
+                        GameManagerStuff.Currency -= GameManager.cost;
+                        GameManager.armourpiercingpc += 10;
+                        GameManager.cost += 10;
                     }
                     else
                     {
                         GameManager.PushToEventLog("Armour piercing at 100%");
                     }
                 }
+                break;
+        }
+    }
+    private void TowerFunc(GameObject gO)
+    {
+        switch (gO.name)
+        {
+            case "Destroy Tower":
+                if (TowerBehaviour.LastTowerSelected != null)
+                {
+                    Destroy(TowerBehaviour.LastTowerSelected);
+                }
                 else
                 {
-                    GameManager.GetComponent<GameManagerStuff>().NotEnoughGold();
+                    GameManager.PushToEventLog("No Tower Selected");
+                }
+                break;
+            case "Armour Piercing":
+                if (TowerBehaviour.LastTowerSelected != null)
+                {
+                    if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
+                        {
+                        if (TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().armourpiercingpc <= 90)
+                        {
+                            TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().armourpiercingpc += 10;
+                            GameManagerStuff.Currency -= TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost;
+                            TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost += 10;
+                        }
+                        else
+                        {
+                            GameManager.PushToEventLog("Armour piercing at 100%");
+                        }
+                    }
+                    else
+                    {
+                        GameManager.GetComponent<GameManagerStuff>().NotEnoughGold();
+                    }
+                }
+                else
+                {
+                    GameManager.PushToEventLog("No Tower Selected");
                 }
                 break;
             case "Kill Bonus":
-                if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
+                if (TowerBehaviour.LastTowerSelected != null)
+                {
+                    if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
                 {
                     TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().BonusGold += 15;
                     GameManagerStuff.Currency -= TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost;
@@ -179,9 +261,16 @@ public class ButtonHandler : MonoBehaviour
                 {
                     GameManager.GetComponent<GameManagerStuff>().NotEnoughGold();
                 }
+                }
+                else
+                {
+                    GameManager.PushToEventLog("No Tower Selected");
+                }
                 break;
             case "Attack Range":
-                if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
+                if (TowerBehaviour.LastTowerSelected != null)
+                {
+                    if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
                 {
                     TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Range += 10;
                     GameManagerStuff.Currency -= TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost;
@@ -191,9 +280,16 @@ public class ButtonHandler : MonoBehaviour
                 {
                     GameManager.GetComponent<GameManagerStuff>().NotEnoughGold();
                 }
-                break;
+        }
+        else
+        {
+            GameManager.PushToEventLog("No Tower Selected");
+        }
+        break;
             case "Projectile Speed":
-                if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
+                if (TowerBehaviour.LastTowerSelected != null)
+                {
+                    if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
                 {
                     TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().ProjectileSpeed += 1;
                     GameManagerStuff.Currency -= TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost;
@@ -203,9 +299,16 @@ public class ButtonHandler : MonoBehaviour
                 {
                     GameManager.GetComponent<GameManagerStuff>().NotEnoughGold();
                 }
+                }
+                else
+                {
+                    GameManager.PushToEventLog("No Tower Selected");
+                }
                 break;
             case "Accuracy":
-                if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
+                if (TowerBehaviour.LastTowerSelected != null)
+                {
+                    if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
                 {
                     TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Damage += 0.5f;
                     GameManagerStuff.Currency -= TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost;
@@ -215,9 +318,16 @@ public class ButtonHandler : MonoBehaviour
                 {
                     GameManager.GetComponent<GameManagerStuff>().NotEnoughGold();
                 }
+                }
+                else
+                {
+                    GameManager.PushToEventLog("No Tower Selected");
+                }
                 break;
             case "Damage":
-                if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
+                if (TowerBehaviour.LastTowerSelected != null)
+                {
+                    if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
                 {
                     TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Damage -= 0.5f;
                     GameManagerStuff.Currency -= TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost;
@@ -227,9 +337,16 @@ public class ButtonHandler : MonoBehaviour
                 {
                     GameManager.GetComponent<GameManagerStuff>().NotEnoughGold();
                 }
+                }
+                else
+                {
+                    GameManager.PushToEventLog("No Tower Selected");
+                }
                 break;
             case "Attack Speed":
-                if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
+                if (TowerBehaviour.LastTowerSelected != null)
+                {
+                    if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
                 {
                     TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().FireRate += 0.02f;
                     GameManagerStuff.Currency -= TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost;
@@ -238,6 +355,11 @@ public class ButtonHandler : MonoBehaviour
                 else
                 {
                     GameManager.GetComponent<GameManagerStuff>().NotEnoughGold();
+                }
+                }
+                else
+                {
+                    GameManager.PushToEventLog("No Tower Selected");
                 }
                 break;
         }

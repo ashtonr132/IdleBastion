@@ -4,7 +4,8 @@ using UnityEngine.UI;
 
 public class GameManagerStuff : MonoBehaviour
 {
-    internal static int TotalLifeTimeClicks, EnemiesKilled, TowersBuilt, Damage = -1, Currency = 0, Population = 1;
+    internal static float TotalLifeTimeClicks, EnemiesKilled, TowersBuilt, Currency = 0, Population = 1;
+    internal float Damage = -1, cost = 10, bonus = 0, armourpiercingpc = 10;
     private GameObject Canvas, FragmentEncapsulation;
     private Transform PlayerUI;
 
@@ -18,15 +19,17 @@ public class GameManagerStuff : MonoBehaviour
     }
     void Update()
     {
+        Population += Time.deltaTime/75;
+        Currency += Time.deltaTime;
         if (Input.GetMouseButtonDown(0))
         {
             TotalLifeTimeClicks++;
         }
         if (PlayerUI.gameObject.activeSelf) //update ui when active
         {
-            PlayerUI.GetChild(1).GetChild(0).GetComponent<Text>().text = Population.ToString();
+            PlayerUI.GetChild(1).GetChild(0).GetComponent<Text>().text = ((int)Population).ToString();
             PlayerUI.GetChild(2).GetChild(0).GetComponent<Text>().text = TotalLifeTimeClicks.ToString();
-            PlayerUI.GetChild(3).GetChild(0).GetComponent<Text>().text = Currency.ToString();
+            PlayerUI.GetChild(3).GetChild(0).GetComponent<Text>().text = ((int)Currency).ToString();
             PlayerUI.GetChild(4).GetChild(0).GetComponent<Text>().text = TowersBuilt.ToString();
             PlayerUI.GetChild(5).GetChild(0).GetComponent<Text>().text = EnemiesKilled.ToString();
         }

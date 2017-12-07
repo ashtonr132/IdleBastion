@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,9 +9,10 @@ public class EnemySpawning : MonoBehaviour
     private int OnStage, LevelDifficulty;
     private GameManagerStuff GameManager;
     List<EnemyFunction.EnemyID[]> Stages = new List<EnemyFunction.EnemyID[]>();
-
+    private AudioClip spawnsound;
     void Start() //Use this for initialization
     {
+        spawnsound = (AudioClip)Resources.Load("Audio/Sound Effects/AbstractPackSFX/Files/AbstractSfx/17");
         Grid = GameObject.Find("GameGrid").GetComponent<CreateGameGrid>().GetGrid();
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
         StartCoroutine(Spawning("NextStage", 3)); //Start stageloop ienum
@@ -32,25 +34,32 @@ public class EnemySpawning : MonoBehaviour
         }
         else if(System.String.Equals(Pass, "NextStage")) //Prepare for next stage
         {
-            Stages.Add(GenerateStage());
-            for(int i = 0; i <= Interval; i++)
+            for (int i = 0; i <= Interval; i++)
             {
-                yield return new WaitForSeconds(1);
+                yield return new WaitUntil(() => GameObject.Find("EnemyController").transform.childCount == 1);
                 if ((Interval - i) == 0)
                 {
+                    Stages.Add(GenerateStage());
                     GameManager.PushToEventLog("Stage " + OnStage.ToString());
+                }
+                else if (OnStage != 0 && i == 0)
+                {
+                    GameManager.PushToEventLog("Stage Completed \nGold + " + OnStage * 10);
+                    GameManagerStuff.Currency += OnStage * 10;
+                    GameManager.PushToEventLog("Next Stage in " + (Interval - i).ToString());
                 }
                 else
                 {
                     GameManager.PushToEventLog("Next Stage in " + (Interval - i).ToString());
+                    yield return new WaitForSeconds(1);
                 }
             }
-            StartCoroutine(Spawning("SpawnStage", 3));
+            StartCoroutine(Spawning("SpawnStage", (3 * Mathf.Pow(0.8f, OnStage) + 0.25f))); //time between each unit spawns decreases as the stage increases, never dips below 0.25f
         }
     }
     internal void SpawnBaddie(EnemyFunction.EnemyID id, Vector3? spawnPos = null) //Quick setup for objects 
     {
-        GameObject GridPieceTemp = Grid[Random.Range(0, 21), 22]; //one less than the grid size
+        GameObject GridPieceTemp = Grid[UnityEngine.Random.Range(0, 21), 22]; //one less than the grid size
         spawnPos = spawnPos ?? new Vector3(GridPieceTemp.transform.position.x + (GridPieceTemp.GetComponent<Renderer>().bounds.size.x / 2), GridPieceTemp.transform.position.y, GridPieceTemp.transform.position.z + (GridPieceTemp.GetComponent<Renderer>().bounds.size.y / 2));
         GameObject tempMesh = GameObject.CreatePrimitive(PrimitiveType.Cube);
         GameObject Enemy = GameManager.AssignComponents(id.ToString(), tempMesh.GetComponent<MeshFilter>().mesh, new Material(Shader.Find("Unlit/Color")), true);
@@ -59,6 +68,7 @@ public class EnemySpawning : MonoBehaviour
         Enemy.transform.SetParent(gameObject.transform); //Orderliness
         Enemy.AddComponent<EnemyFunction>();
         Enemy.GetComponent<EnemyFunction>().EnemyType(id);
+        AudioSource.PlayClipAtPoint(spawnsound, GameObject.Find("Main Camera").transform.position, 0.02f);
         GameManager.PushToEventLog("Spawning " + Enemy.name);
     }
     private EnemyFunction.EnemyID[] GenerateStage()
@@ -68,7 +78,7 @@ public class EnemySpawning : MonoBehaviour
         List<EnemyFunction.EnemyID> temp = new List<EnemyFunction.EnemyID>();
         while (totalLevelSet < LevelDifficulty) //build level selecing enemies on the fly to fufill the levels difficulty cap
         {
-            int tempint = Random.Range(1, 12);
+            int tempint = UnityEngine.Random.Range(1, 11);
             switch (tempint)
             {
                 default:
@@ -101,9 +111,6 @@ public class EnemySpawning : MonoBehaviour
                 case 10:
                     temp.Add(EnemyFunction.EnemyID.Assasin);
                     break;
-                case 11:
-                    temp.Add(EnemyFunction.EnemyID.Bonus);
-                    break;
             }
             totalLevelSet += tempint;
         }
@@ -114,6 +121,6 @@ public class EnemySpawning : MonoBehaviour
         }
         return temparray;
         //code for spawning specific stages, tutorial stage? or just bugtesting
-        // EnemyFunction.EnemyID[] Stage0 = new EnemyFunction.EnemyID[] {EnemyFunction.EnemyID.Assasin,EnemyFunction.EnemyID.Bonus, EnemyFunction.EnemyID.Boss, EnemyFunction.EnemyID.Charger, EnemyFunction.EnemyID.Default, EnemyFunction.EnemyID.Knight, EnemyFunction.EnemyID.Mother, EnemyFunction.EnemyID.Phasing, EnemyFunction.EnemyID.Regenerator, EnemyFunction.EnemyID.Shielded, EnemyFunction.EnemyID.Teleport, EnemyFunction.EnemyID.Undead}; Stages.Add(Stage0); //Planned Stages
+        //EnemyFunction.EnemyID[] Stage0 = new EnemyFunction.EnemyID[] {EnemyFunction.EnemyID.Assasin,EnemyFunction.EnemyID.Bonus, EnemyFunction.EnemyID.Boss, EnemyFunction.EnemyID.Charger, EnemyFunction.EnemyID.Default, EnemyFunction.EnemyID.Knight, EnemyFunction.EnemyID.Mother, EnemyFunction.EnemyID.Phasing, EnemyFunction.EnemyID.Regenerator, EnemyFunction.EnemyID.Shielded, EnemyFunction.EnemyID.Teleport, EnemyFunction.EnemyID.Undead}; Stages.Add(Stage0); //Planned Stages
     }
 }
