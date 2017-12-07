@@ -8,6 +8,7 @@ public class BuildingControls : MonoBehaviour
     private Vector3 IndPlacement;
     private GameManagerStuff GameManager;
     private AudioClip BuildSound;
+    private int MaxTowers = 20;
     
     void Start()// Use this for initialization
     {
@@ -36,25 +37,37 @@ public class BuildingControls : MonoBehaviour
                 {
                     if (Indicator.transform.parent.Find("Tower") == null) //Is square built on already?
                     {
-                        GameObject Tower = GameManager.AssignComponents("Tower", ((GameObject)Resources.Load("Construction/Tower")).transform.GetChild(0).GetComponent<MeshFilter>().sharedMesh, (Material)Resources.Load("Construction/TowerMat"), true);
-                        GameObject TowerRoof = GameManager.AssignComponents("TowerRoof", ((GameObject)Resources.Load("Construction/TowerRoof")).transform.GetChild(0).GetComponent<MeshFilter>().sharedMesh, new Material(Shader.Find("Standard")), false);
-                        TowerRoof.transform.position = Tower.transform.position + new Vector3(0, (int)(Tower.GetComponent<Collider>().bounds.size.y/4), -Tower.transform.position.z/2);
-                        TowerRoof.transform.SetParent(Tower.transform);
-                        Tower.AddComponent<TowerBehaviour>();
-                        Tower.GetComponent<TowerBehaviour>().SetTowerType(TowerBehaviour.TowerID.Default);
-                        Tower.GetComponent<Rigidbody>().isKinematic = true;
-                        Tower.transform.position = Indicator.transform.position + Indicator.transform.parent.GetComponent<Renderer>().bounds.extents;
-                        Tower.transform.SetParent(Indicator.transform.parent);
-                        Tower.transform.localScale /= 1.25f;
-                        GameManager.PushToEventLog("Tower Built.");
-                        AudioSource.PlayClipAtPoint(BuildSound, maincamera.transform.position, 0.02f);
-                        GameManagerStuff.TowersBuilt++;
+                        if (MaxTowers <= GameManagerStuff.TowersBuilt)
+                        {
+                            GameObject Tower = GameManager.AssignComponents("Tower", ((GameObject)Resources.Load("Construction/Tower")).transform.GetChild(0).GetComponent<MeshFilter>().sharedMesh, (Material)Resources.Load("Construction/TowerMat"), true);
+                            GameObject TowerRoof = GameManager.AssignComponents("TowerRoof", ((GameObject)Resources.Load("Construction/TowerRoof")).transform.GetChild(0).GetComponent<MeshFilter>().sharedMesh, new Material(Shader.Find("Standard")), false);
+                            TowerRoof.transform.position = Tower.transform.position + new Vector3(0, (int)(Tower.GetComponent<Collider>().bounds.size.y / 4), -Tower.transform.position.z);
+                            TowerRoof.transform.SetParent(Tower.transform);
+                            Tower.AddComponent<TowerBehaviour>();
+                            Tower.GetComponent<TowerBehaviour>().SetTowerType(TowerBehaviour.TowerID.Default);
+                            Tower.GetComponent<Rigidbody>().isKinematic = true;
+                            Tower.transform.position = Indicator.transform.position + Indicator.transform.parent.GetComponent<Renderer>().bounds.extents;
+                            Tower.transform.SetParent(Indicator.transform.parent);
+                            Tower.transform.localScale /= 1.25f;
+                            GameManager.PushToEventLog("Tower Built.");
+                            AudioSource.PlayClipAtPoint(BuildSound, maincamera.transform.position, 0.02f);
+                            GameManagerStuff.TowersBuilt++;
+                        }
+                        else
+                        {
+                            GameManager.PushToEventLog("You cannot have more than " + MaxTowers + ".");
+                        }
                     }
                     else
                     {
                         GameManager.PushToEventLog("Tower Selected.");
                         TowerBehaviour.LastTowerSelected = Indicator.transform.parent.GetChild(0).gameObject;
                     }
+                }
+                else if (hit.transform.gameObject.name.Contains("Tower"))
+                {
+                    GameManager.PushToEventLog("Tower Selected.");
+                    TowerBehaviour.LastTowerSelected = hit.transform.gameObject;
                 }
                 foreach (GameObject gridpiece in Grid) //On grid piece
                 {

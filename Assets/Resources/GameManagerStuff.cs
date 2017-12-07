@@ -53,7 +53,14 @@ public class GameManagerStuff : MonoBehaviour
     internal void PushToEventLog(string inString) //Put text into the scrolling game log
     {
         Text EventLog = GameObject.Find("Canvas").transform.GetChild(0).GetChild(0).GetChild(0).GetComponent<Text>();
-        EventLog.text = "\n" + inString + EventLog.text;
+        try
+        {
+            EventLog.text = "\n" + inString + EventLog.text;
+        }
+        catch (System.Exception)
+        {
+            EventLog.text = "Event Log Full! \n Event Log Cleared.";
+        }
     }
     internal void FragmentEnemy(GameObject GameObjectPos, int FragMin, int FragMax)
     {
