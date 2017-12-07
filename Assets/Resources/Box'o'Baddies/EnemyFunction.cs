@@ -423,9 +423,9 @@ public class EnemyFunction : MonoBehaviour
     internal void ReAssignTypeVal(Color32 Color, string name = "Default Baddie", int movespeed = 15, int maxhp = 10, int enemyvalue = 10, float armourvalue = 1, int scalar = 10) //enemy type attributes setting
     {
         MoveSpeed = movespeed;
-        MaxHP = maxhp;
+        MaxHP = maxhp + (GameObject.Find("EnemyController").GetComponent<EnemySpawning>().OnStage * 1.1f);
         EnemyValue = enemyvalue;
-        ArmourVal = armourvalue;
+        ArmourVal = armourvalue + (GameObject.Find("EnemyController").GetComponent<EnemySpawning>().OnStage * 1.05f);
         transform.localScale *= scalar;
         transform.name = name;
         GetComponent<Renderer>().material.color = Color;

@@ -6,7 +6,8 @@ using UnityEngine;
 public class EnemySpawning : MonoBehaviour
 {
     internal GameObject[,] Grid;
-    private int OnStage, LevelDifficulty;
+    internal int OnStage;
+    private int LevelDifficulty;
     private GameManagerStuff GameManager;
     List<EnemyFunction.EnemyID[]> Stages = new List<EnemyFunction.EnemyID[]>();
     private AudioClip spawnsound;

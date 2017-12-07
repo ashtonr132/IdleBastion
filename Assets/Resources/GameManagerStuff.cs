@@ -27,7 +27,7 @@ public class GameManagerStuff : MonoBehaviour
         }
         Population += Time.deltaTime/55; //add population and currency over time
         Currency += Time.deltaTime/5;
-        if (Input.GetMouseButtonDown(0) || Input.GetMouseButton(1)) //counts clicks
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)) //counts clicks
         {
             TotalLifeTimeClicks++;
         }
