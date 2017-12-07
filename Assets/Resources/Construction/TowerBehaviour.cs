@@ -37,7 +37,7 @@ public class TowerBehaviour : MonoBehaviour {
         yield return new WaitForSeconds(FireRate);
         foreach (Transform enemy in EnemyController.transform) //target enemy
         {
-            if (enemy != null)
+            if (enemy != null && enemy.name != "FragmentEncapsulation")
             {
                 if (Target != null)
                 {

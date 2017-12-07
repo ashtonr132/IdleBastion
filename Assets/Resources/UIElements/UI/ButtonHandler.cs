@@ -97,13 +97,13 @@ public class ButtonHandler : MonoBehaviour
                     case "Kill Bonus":
                         if (TowerBehaviour.LastTowerSelected != null)
                         {
-                            item.GetChild(0).GetComponent<Text>().text = "Attack Speed : " + TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().BonusGold;
+                            item.GetChild(0).GetComponent<Text>().text = "Bonus Gold : " + TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().BonusGold;
                         }
                         break;
                     case "Attack Range":
                         if (TowerBehaviour.LastTowerSelected != null)
                         {
-                            item.GetChild(0).GetComponent<Text>().text = "Attack Speed : " + TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Range;
+                            item.GetChild(0).GetComponent<Text>().text = "Attack Range : " + TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Range;
                         }
                         break;
                     case "Armour Piercing":
@@ -131,7 +131,7 @@ public class ButtonHandler : MonoBehaviour
                         item.GetChild(0).GetComponent<Text>().text = "Armour Piercing : " + GameManagerStuff.ArmourPiercingPC.ToString() + "%";
                         break;
                     case "Damage":
-                        item.GetChild(0).GetComponent<Text>().text = "Damage" + Mathf.Abs(GameManagerStuff.Damage).ToString();
+                        item.GetChild(0).GetComponent<Text>().text = "Damage : " + Mathf.Abs(GameManagerStuff.Damage).ToString();
                         break;
                 }
             }
@@ -192,7 +192,7 @@ public class ButtonHandler : MonoBehaviour
                 if (GameManager.CanAfford(GameManagerStuff.Cost))
                 {
                     GameManagerStuff.Currency -= GameManagerStuff.Cost;
-                    GameManagerStuff.Cost = Mathf.Round(GameManagerStuff.Cost * 1.05f) + 10;
+                    GameManagerStuff.Cost = Mathf.Round(GameManagerStuff.Cost * 1.1f) + 10;
                     GameManagerStuff.Damage -= 0.5f;
                 }
                 break;
@@ -200,7 +200,7 @@ public class ButtonHandler : MonoBehaviour
                 if (GameManager.CanAfford(GameManagerStuff.Cost))
                 {
                     GameManagerStuff.Currency -= GameManagerStuff.Cost;
-                    GameManagerStuff.Bonus += 15;
+                    GameManagerStuff.Bonus += 3;
                     GameManagerStuff.Cost += 10;
                 }
                 break;
@@ -229,6 +229,7 @@ public class ButtonHandler : MonoBehaviour
                 if (TowerBehaviour.LastTowerSelected != null)
                 {
                     Destroy(TowerBehaviour.LastTowerSelected);
+                    GameManagerStuff.TowersBuilt--;
                 }
                 else
                 {

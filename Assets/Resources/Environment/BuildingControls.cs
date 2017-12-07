@@ -8,7 +8,7 @@ public class BuildingControls : MonoBehaviour
     private Vector3 IndPlacement;
     private GameManagerStuff GameManager;
     private AudioClip BuildSound;
-    private int MaxTowers = 20;
+    private int MaxTowers = 12;
     
     void Start()// Use this for initialization
     {
@@ -54,7 +54,7 @@ public class BuildingControls : MonoBehaviour
                         }
                         else
                         {
-                            GameManager.PushToEventLog("You cannot have more than " + MaxTowers + "Towers.");
+                            GameManager.PushToEventLog("You cannot have more \n than " + MaxTowers + " Towers.");
                         }
                     }
                     else

@@ -15,7 +15,7 @@ public class GameManagerStuff : MonoBehaviour
         PlayerUI = GameObject.Find("Player").transform;
         Canvas = GameObject.Find("Canvas");
         FragmentEncapsulation = new GameObject("FragmentEncapsulation"); //unity tidyness
-        FragmentEncapsulation.transform.position = new Vector3(-100, 0, 0); //out of the way
+        FragmentEncapsulation.transform.position = new Vector3(0, 0, 0); //out of the way
         FragmentEncapsulation.transform.SetParent(GameObject.Find("EnemyController").transform);
     }
     void Update()
@@ -25,8 +25,8 @@ public class GameManagerStuff : MonoBehaviour
             PushToEventLog("You Have Died!");
             StartCoroutine(RestartGame());
         }
-        Population += Time.deltaTime/75; //add population and currency over time
-        Currency += Time.deltaTime;
+        Population += Time.deltaTime/55; //add population and currency over time
+        Currency += Time.deltaTime/5;
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButton(1)) //counts clicks
         {
             TotalLifeTimeClicks++;

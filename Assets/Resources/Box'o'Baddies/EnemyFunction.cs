@@ -419,7 +419,7 @@ public class EnemyFunction : MonoBehaviour
                 //support that heals other units
         }
     }
-    internal void ReAssignTypeVal(Color32 Color, string name = "DefaultBaddie", int movespeed = 15, int maxhp = 10, int enemyvalue = 10, float armourvalue = 1, int scalar = 10) //enemy type attributes setting
+    internal void ReAssignTypeVal(Color32 Color, string name = "Default Baddie", int movespeed = 15, int maxhp = 10, int enemyvalue = 10, float armourvalue = 1, int scalar = 10) //enemy type attributes setting
     {
         MoveSpeed = movespeed;
         MaxHP = maxhp;
