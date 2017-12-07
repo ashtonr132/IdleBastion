@@ -324,7 +324,7 @@ public class ButtonHandler : MonoBehaviour
                 {
                     if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
                 {
-                    TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Damage += 0.5f;
+                    TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Accuracy += 0.01f;
                     GameManagerStuff.Currency -= TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost;
                     TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost += 10;
                 }
@@ -361,15 +361,22 @@ public class ButtonHandler : MonoBehaviour
                 if (TowerBehaviour.LastTowerSelected != null)
                 {
                     if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
-                {
-                    TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().FireRate += 0.02f;
-                    GameManagerStuff.Currency -= TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost;
-                    TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost += 10;
-                }
-                else
-                {
-                    GameManager.GetComponent<GameManagerStuff>().NotEnoughGold();
-                }
+                    {
+                        if (TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().FireRate > 1)
+                        {
+                            TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().FireRate = TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().FireRate / 10 * 9;
+                            GameManagerStuff.Currency -= TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost;
+                            TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost += 10;
+                        }
+                        else
+                        {
+                            GameManager.PushToEventLog("Attack Speed At Max");
+                        }
+                    }
+                    else
+                    {
+                        GameManager.GetComponent<GameManagerStuff>().NotEnoughGold();
+                    }
                 }
                 else
                 {

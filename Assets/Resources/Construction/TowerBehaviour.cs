@@ -5,7 +5,7 @@ using System;
 public class TowerBehaviour : MonoBehaviour {
 
     internal int Cost = 100, Range = 50, ProjectileSpeed = 5, BonusGold = 0;
-    internal float FireRate = 0.25f, Accuracy = 1.25f, Damage = -1, armourpiercingpc = 10;
+    internal float FireRate = 0.25f, Accuracy = 0.075f, Damage = -1, armourpiercingpc = 10;
     private GameObject EnemyController, Target = null;
     internal static GameObject LastTowerSelected;
     private GameManagerStuff GameManager;
