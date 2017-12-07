@@ -47,6 +47,7 @@ public class EnemySpawning : MonoBehaviour
                     GameManager.PushToEventLog("Stage Completed \nGold + " + OnStage * 10);
                     GameManagerStuff.Currency += OnStage * 10;
                     GameManager.PushToEventLog("Next Stage in " + (Interval - i).ToString());
+                    GameManager.score += LevelDifficulty;
                 }
                 else
                 {

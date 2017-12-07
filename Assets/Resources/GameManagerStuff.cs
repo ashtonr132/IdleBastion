@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class GameManagerStuff : MonoBehaviour
 {
     internal static float TotalLifeTimeClicks, EnemiesKilled, TowersBuilt, Currency = 0, Population = 1;
-    internal float Damage = -1, cost = 10, bonus = 0, armourpiercingpc = 10;
+    internal float Damage = -1, cost = 10, bonus = 0, armourpiercingpc = 10, score = 0;
     private GameObject Canvas, FragmentEncapsulation;
     private Transform PlayerUI;
 
@@ -27,11 +27,12 @@ public class GameManagerStuff : MonoBehaviour
         }
         if (PlayerUI.gameObject.activeSelf) //update ui when active
         {
-            PlayerUI.GetChild(1).GetChild(0).GetComponent<Text>().text = ((int)Population).ToString();
-            PlayerUI.GetChild(2).GetChild(0).GetComponent<Text>().text = TotalLifeTimeClicks.ToString();
-            PlayerUI.GetChild(3).GetChild(0).GetComponent<Text>().text = ((int)Currency).ToString();
-            PlayerUI.GetChild(4).GetChild(0).GetComponent<Text>().text = TowersBuilt.ToString();
-            PlayerUI.GetChild(5).GetChild(0).GetComponent<Text>().text = EnemiesKilled.ToString();
+            PlayerUI.GetChild(1).GetChild(0).GetComponent<Text>().text = "Population : " + ((int)Population).ToString();
+            PlayerUI.GetChild(2).GetChild(0).GetComponent<Text>().text = "Total Clicks : " + TotalLifeTimeClicks.ToString();
+            PlayerUI.GetChild(3).GetChild(0).GetComponent<Text>().text = "Currency : " + ((int)Currency).ToString();
+            PlayerUI.GetChild(4).GetChild(0).GetComponent<Text>().text = "Towers Built : " + TowersBuilt.ToString();
+            PlayerUI.GetChild(5).GetChild(0).GetComponent<Text>().text = "Ememies Killed : " + EnemiesKilled.ToString();
+            PlayerUI.GetChild(6).GetChild(0).GetComponent<Text>().text = "Score : " + score.ToString();
         }
     }
     internal GameObject AssignComponents(string name, Mesh mesh, Material mat, bool needsRB = false) //Setting up new game objects quickly
@@ -72,13 +73,13 @@ public class GameManagerStuff : MonoBehaviour
             StartCoroutine(FadeOut(Fragment, 0.15f));
         }
     }
-    internal void DisplayValue(string Display, Vector3 DisplayPosition) //Popup text
+    internal void DisplayValue(string Display, Vector2 DisplayPosition) //Popup text
     {
-        DisplayPosition = Camera.main.WorldToScreenPoint(DisplayPosition) + (new Vector3(Random.value, Random.value, Random.value)); //World coords to pixel coords for the ui canvas plus an angle skew adjustment and a random 15 wide random change
-        Vector2 canvasCentre = new Vector2(Canvas.GetComponent<RectTransform>().sizeDelta.x / 2, Canvas.GetComponent<RectTransform>().sizeDelta.y / 2); //Canvas centre for reference
-        GameObject DamageTextInstance = (GameObject)Instantiate((GameObject)Resources.Load("Box'o'Baddies/DamageValueParent"), -(canvasCentre - new Vector2(DisplayPosition.x, DisplayPosition.y)), Quaternion.identity); //Position is wrong
-        DamageTextInstance.transform.GetChild(0).GetComponent<Text>().text = Display;
+        GameObject DamageTextInstance = (GameObject)Instantiate((GameObject)Resources.Load("Box'o'Baddies/DamageValueParent")); //Position is wrong
         DamageTextInstance.transform.SetParent(Canvas.transform, false); //Text objects display via canvas
+        Vector2 CanvasBottomLeftofRect = ((Vector2)GameObject.Find("Canvas").transform.position - new Vector2(GameObject.Find("Canvas").GetComponent<RectTransform>().rect.width / 2, GameObject.Find("Canvas").GetComponent<RectTransform>().rect.height / 2));
+        DamageTextInstance.transform.position =  CanvasBottomLeftofRect + new Vector2((Camera.main.WorldToScreenPoint(DisplayPosition).x/Camera.main.pixelWidth) * GameObject.Find("Canvas").GetComponent<RectTransform>().rect.width, (Camera.main.WorldToViewportPoint(DisplayPosition).y/Camera.main.pixelHeight) * GameObject.Find("Canvas").GetComponent<RectTransform>().rect.height);
+        DamageTextInstance.transform.GetChild(0).GetComponent<Text>().text = Display;
         AnimatorClipInfo[] clipInfo = DamageTextInstance.transform.GetChild(0).GetComponent<Animator>().GetCurrentAnimatorClipInfo(0); //How long is text bounce anim?
         Destroy(DamageTextInstance, clipInfo[0].clip.length); //Destroy after bounce anim ends
     }

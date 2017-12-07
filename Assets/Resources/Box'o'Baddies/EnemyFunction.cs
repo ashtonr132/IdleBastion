@@ -100,7 +100,6 @@ public class EnemyFunction : MonoBehaviour
                     {
                         AudioSource.PlayClipAtPoint(DamageSound, maincamera.transform.position, 0.03f);
                     }
-                    
                     DamageDealt = GameManager.Damage;
                     CurrentHP += (DamageDealt / (ArmourVal / GameManager.armourpiercingpc)) / 10;
                     GameManager.DisplayValue(((DamageDealt / (ArmourVal / GameManager.armourpiercingpc)) / 10).ToString(), gameObject.transform.position);
