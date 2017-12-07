@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -74,29 +75,34 @@ public class GameManagerStuff : MonoBehaviour
     }
     internal void FragmentEnemy(GameObject GameObjectPos, int FragMin, int FragMax) //this function was inspired by the example game CubeWorld in Casual game development, however i have written my own version with the functionality i required
     {
-        var num = Random.Range(FragMin, FragMax);
+        var num = UnityEngine.Random.Range(FragMin, FragMax);
         for (int i = 0; i < num; i++)
         {
             GameObject Fragment = AssignComponents("EnemyFragment", GameObjectPos.GetComponent<MeshFilter>().mesh, (Material)Resources.Load("Box'o'Baddies/FragmentMat"), false);
             //Fragment.GetComponent<Renderer>().material.SetFloat("_Mode", 3); unity5 bug, the material will not update until checked in the inspector if changed this way, i had to use a premade material instead
-            var scale = Mathf.Clamp(Random.value * 2, 0.25f, 2);
-            Fragment.transform.position = new Vector3(GameObjectPos.transform.position.x + Random.Range(-GameObjectPos.GetComponent<Renderer>().bounds.size.x / 2, GameObjectPos.GetComponent<Renderer>().bounds.size.x / 2), GameObjectPos.transform.position.y + GameObjectPos.GetComponent<Renderer>().bounds.size.y, GameObjectPos.transform.position.z + Random.Range(-GameObjectPos.GetComponent<Renderer>().bounds.size.z / 2, GameObjectPos.GetComponent<Renderer>().bounds.size.z / 2));
+            var scale = Mathf.Clamp(UnityEngine.Random.value * 2, 0.25f, 2);
+            Fragment.transform.position = new Vector3(GameObjectPos.transform.position.x + UnityEngine.Random.Range(-GameObjectPos.GetComponent<Renderer>().bounds.size.x / 2, GameObjectPos.GetComponent<Renderer>().bounds.size.x / 2), GameObjectPos.transform.position.y + GameObjectPos.GetComponent<Renderer>().bounds.size.y, GameObjectPos.transform.position.z + UnityEngine.Random.Range(-GameObjectPos.GetComponent<Renderer>().bounds.size.z / 2, GameObjectPos.GetComponent<Renderer>().bounds.size.z / 2));
             Fragment.transform.localScale = new Vector3(scale, scale, scale);
             Fragment.GetComponent<Renderer>().material.color = new Color(GameObjectPos.GetComponent<Renderer>().material.color.r, GameObjectPos.GetComponent<Renderer>().material.color.g, GameObjectPos.GetComponent<Renderer>().material.color.b, 1);
             Destroy(Fragment.GetComponent<MeshCollider>()); Fragment.AddComponent<BoxCollider>(); Fragment.AddComponent<Rigidbody>();
-            Fragment.GetComponent<Rigidbody>().AddForce(Random.Range(-500f, 500f), Random.Range(-1000, 1000), Random.Range(-500, 500));
+            Fragment.GetComponent<Rigidbody>().AddForce(UnityEngine.Random.Range(-500f, 500f), UnityEngine.Random.Range(-1000, 1000), UnityEngine.Random.Range(-500, 500));
             Fragment.transform.SetParent(FragmentEncapsulation.transform);
             Fragment.GetComponent<BoxCollider>().size /= 2.5f;
             StartCoroutine(FadeOut(Fragment, 0.15f));
         }
     }
-    internal void DisplayValue(string Display, Vector2 DisplayPosition) //Popup text
+    internal void DisplayValue(float Display, Vector2 DisplayPosition) //Popup text
     {
         GameObject DamageTextInstance = (GameObject)Instantiate((GameObject)Resources.Load("Box'o'Baddies/DamageValueParent")); //Position is wrong
         DamageTextInstance.transform.SetParent(Canvas.transform, false); //Text objects display via canvas
         Vector2 CanvasBottomLeftofRect = ((Vector2)GameObject.Find("Canvas").transform.position - new Vector2(GameObject.Find("Canvas").GetComponent<RectTransform>().rect.width / 2, GameObject.Find("Canvas").GetComponent<RectTransform>().rect.height / 2));
         DamageTextInstance.transform.position =  CanvasBottomLeftofRect + new Vector2((Camera.main.WorldToScreenPoint(DisplayPosition).x/Camera.main.pixelWidth) * GameObject.Find("Canvas").GetComponent<RectTransform>().rect.width, (Camera.main.WorldToViewportPoint(DisplayPosition).y/Camera.main.pixelHeight) * GameObject.Find("Canvas").GetComponent<RectTransform>().rect.height);
-        DamageTextInstance.transform.GetChild(0).GetComponent<Text>().text = Display;
+        string Temp = "";
+        if (Display > 0)
+        {
+            Temp = "+";
+        }
+        DamageTextInstance.transform.GetChild(0).GetComponent<Text>().text = Temp + decimal.Round((decimal)Display, 2, MidpointRounding.AwayFromZero).ToString();
         AnimatorClipInfo[] clipInfo = DamageTextInstance.transform.GetChild(0).GetComponent<Animator>().GetCurrentAnimatorClipInfo(0); //How long is text bounce anim?
         Destroy(DamageTextInstance, clipInfo[0].clip.length); //Destroy after bounce anim ends
     }

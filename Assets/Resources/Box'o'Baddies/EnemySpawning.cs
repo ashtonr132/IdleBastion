@@ -56,7 +56,7 @@ public class EnemySpawning : MonoBehaviour
                     yield return new WaitForSeconds(1);
                 }
             }
-            StartCoroutine(Spawning("SpawnStage", (3 * Mathf.Pow(0.8f, OnStage) + 0.25f))); //time between each unit spawns decreases as the stage increases, never dips below 0.25f
+            StartCoroutine(Spawning("SpawnStage", (3 * Mathf.Pow(0.8f, OnStage) + 0.15f))); //time between each unit spawns decreases as the stage increases, never dips below 0.25f
         }
     }
     internal void SpawnBaddie(EnemyFunction.EnemyID id, Vector3? spawnPos = null) //Quick setup for objects 
@@ -80,7 +80,7 @@ public class EnemySpawning : MonoBehaviour
         List<EnemyFunction.EnemyID> temp = new List<EnemyFunction.EnemyID>();
         while (totalLevelSet < LevelDifficulty) //build level selecing enemies on the fly to fufill the levels difficulty cap
         {
-            int tempint = UnityEngine.Random.Range(1, 11);
+            int tempint = UnityEngine.Random.Range(1, 12);
             switch (tempint)
             {
                 default:
@@ -101,17 +101,20 @@ public class EnemySpawning : MonoBehaviour
                 case 6:
                     temp.Add(EnemyFunction.EnemyID.Phasing);
                     break;
-                case 7:
+                case 9:
                     temp.Add(EnemyFunction.EnemyID.Mother);
                     break;
                 case 8: 
                     temp.Add(EnemyFunction.EnemyID.Knight);
                     break;
-                case 9:
+                case 10:
                     temp.Add(EnemyFunction.EnemyID.Undead);
                     break;
-                case 10:
+                case 11:
                     temp.Add(EnemyFunction.EnemyID.Assasin);
+                    break;
+                case 7:
+                    temp.Add(EnemyFunction.EnemyID.Support);
                     break;
             }
             totalLevelSet += tempint;

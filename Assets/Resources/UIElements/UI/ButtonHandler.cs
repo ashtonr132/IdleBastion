@@ -267,7 +267,7 @@ public class ButtonHandler : MonoBehaviour
                 {
                     if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
                 {
-                    TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().BonusGold += 15;
+                    TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().BonusGold += 3;
                     GameManagerStuff.Currency -= TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost;
                     TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost += 10;
                 }
@@ -304,15 +304,22 @@ public class ButtonHandler : MonoBehaviour
                 if (TowerBehaviour.LastTowerSelected != null)
                 {
                     if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
-                {
-                    TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().ProjectileSpeed += 1;
-                    GameManagerStuff.Currency -= TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost;
-                    TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost += 10;
-                }
-                else
-                {
-                    GameManager.GetComponent<GameManagerStuff>().NotEnoughGold();
-                }
+                    {
+                        if (TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().ProjectileSpeed < 9)
+                        {
+                            TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().ProjectileSpeed += 1;
+                            GameManagerStuff.Currency -= TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost;
+                            TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost += 10;
+                        }
+                        else
+                        {
+                            GameManager.PushToEventLog("Projectile Speed At Max");
+                        }
+                    }
+                    else
+                    {
+                        GameManager.GetComponent<GameManagerStuff>().NotEnoughGold();
+                    }
                 }
                 else
                 {
