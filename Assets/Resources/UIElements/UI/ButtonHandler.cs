@@ -73,7 +73,7 @@ public class ButtonHandler : MonoBehaviour
                     case "Attack Speed":
                         if (TowerBehaviour.LastTowerSelected != null)
                         {
-                            item.GetChild(0).GetComponent<Text>().text = "Attack Speed : " + TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().FireRate;
+                            item.GetChild(0).GetComponent<Text>().text = "Attack Speed : " + decimal.Round((decimal)TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().FireRate, 8, MidpointRounding.AwayFromZero);
                         }
                         break;
                     case "Damage":
@@ -362,9 +362,9 @@ public class ButtonHandler : MonoBehaviour
                 {
                     if (GameManager.CanAfford(TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost))
                     {
-                        if (TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().FireRate > 1)
+                        if (TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().FireRate > 0.01f)
                         {
-                            TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().FireRate = TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().FireRate / 10 * 9;
+                            TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().FireRate = (TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().FireRate / 10) * 9;
                             GameManagerStuff.Currency -= TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost;
                             TowerBehaviour.LastTowerSelected.GetComponent<TowerBehaviour>().Cost += 10;
                         }

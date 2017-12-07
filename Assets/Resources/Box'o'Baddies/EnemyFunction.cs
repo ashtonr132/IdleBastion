@@ -205,6 +205,7 @@ public class EnemyFunction : MonoBehaviour
                 var CurrentMoveSpeed = Mathf.PingPong(Time.time, MoveSpeed / Mathf.Sqrt(CurrentHP) + 3); // pingpong speed of charger
                 if (FinalPath.Count > 0 && CurrentMoveSpeed >= 1) //there is one instance where at this point the path can contain nothing, if thisis the case there is nothing to move to, so stand still and then get a new path because path.coun == 0
                 {
+                    print(CurrentMoveSpeed);
                     GetComponent<Rigidbody>().velocity = ((moveto + GetExtents(FinalPath[0])) - transform.position).normalized * CurrentMoveSpeed; //aim for the middle of each tile
                 }
             }
@@ -454,6 +455,7 @@ public class EnemyFunction : MonoBehaviour
     internal void Teleport(GameObject gt) //teleportin function, moves enemy and resets pathing list
     {
         FinalPath.Clear();
+        ClosedTiles.Clear();
         Vector3 temp = gt.transform.position.ParameterChange(X: (UnityEngine.Random.Range(0, 110)), Z: (UnityEngine.Random.Range(gt.transform.position.z, 190)));
         gt.transform.position = temp;
         killzonepathing.transform.position = new Vector3(temp.x, temp.y, killzonepathing.transform.position.z);
