@@ -100,11 +100,11 @@ public class EnemyFunction : MonoBehaviour
                     {
                         AudioSource.PlayClipAtPoint(DamageSound, maincamera.transform.position, 0.03f);
                     }
-                    DamageDealt = GameManager.Damage;
-                    CurrentHP += (DamageDealt / (ArmourVal / GameManager.armourpiercingpc)) / 10;
-                    GameManager.DisplayValue(((DamageDealt / (ArmourVal / GameManager.armourpiercingpc)) / 10).ToString(), gameObject.transform.position);
+                    DamageDealt = GameManagerStuff.Damage;
+                    CurrentHP += (DamageDealt / (ArmourVal / GameManagerStuff.ArmourPiercingPC)) / 10;
+                    GameManager.DisplayValue(((DamageDealt / (ArmourVal / GameManagerStuff.ArmourPiercingPC)) / 10).ToString(), gameObject.transform.position);
                     GameManager.FragmentEnemy(gameObject, 1, 1);
-                    GameManagerStuff.Currency += GameManager.bonus;
+                    GameManagerStuff.Currency += GameManagerStuff.Bonus;
                     if (CurrentEnemyID == EnemyID.Teleport)
                     {
                         Teleport(gameObject);
@@ -361,7 +361,7 @@ public class EnemyFunction : MonoBehaviour
             }
         }
     }
-    internal void EnemyType(EnemyID id) //Typecast statistics
+    internal void EnemyType(EnemyID id) //sets id passed statistics
     {
         CurrentEnemyID = id;
         switch (CurrentEnemyID)
@@ -451,7 +451,7 @@ public class EnemyFunction : MonoBehaviour
             return Vector3.zero;
         }
     }
-    internal void Teleport(GameObject gt)
+    internal void Teleport(GameObject gt) //teleportin function, moves enemy and resets pathing list
     {
         FinalPath.Clear();
         Vector3 temp = gt.transform.position.ParameterChange(X: (UnityEngine.Random.Range(0, 110)), Z: (UnityEngine.Random.Range(gt.transform.position.z, 190)));

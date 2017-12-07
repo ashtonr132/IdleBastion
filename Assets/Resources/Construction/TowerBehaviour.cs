@@ -14,7 +14,7 @@ public class TowerBehaviour : MonoBehaviour {
     {
         Default
     }
-    internal TowerID CurrentTowerID;
+    internal TowerID CurrentTowerID; //this is used internally
     void Start() //Use this for initialization
     {
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
@@ -32,30 +32,27 @@ public class TowerBehaviour : MonoBehaviour {
         StartCoroutine(Fire());
         LastTowerSelected = gameObject;
     }
-    void Update()//Update is called once per frame
+    private IEnumerator Fire()
     {
+        yield return new WaitForSeconds(FireRate);
         foreach (Transform enemy in EnemyController.transform) //target enemy
         {
             if (enemy != null)
             {
                 if (Target != null)
                 {
-                    if (Vector3.Distance(enemy.position, transform.position) < Vector3.Distance(Target.transform.position, transform.position))
+                    if (Vector3.Distance(enemy.position, transform.position) < Vector3.Distance(Target.transform.position, transform.position))//is this enemy closer than the current target?
                     {
                         Target = enemy.gameObject;
                     }
                 }
-                else
+                else //if there is not target yet, this enemy is the target
                 {
                     Target = enemy.gameObject;
                 }
             }
         }
-    }
-    private IEnumerator Fire()
-    {
-        yield return new WaitForSeconds(FireRate);
-        if (Target != null && Vector3.Distance(Target.transform.position, transform.position) < Range)
+        if (Target != null && Vector3.Distance(Target.transform.position, transform.position) < Range) //does tower have a target within tower range?
         {
             GameObject Projectile = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             Projectile.transform.name = "Projectile";

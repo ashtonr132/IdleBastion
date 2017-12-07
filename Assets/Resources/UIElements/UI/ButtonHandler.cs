@@ -9,18 +9,23 @@ public class ButtonHandler : MonoBehaviour
     Text UIIndicatorText;
     private GameManagerStuff GameManager;
     private GameObject TowerUI, ClickerUI;
-    private void Start()
+    private void Awake()
     {
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
         TowerUI = GameObject.Find("UI/Tower");
         ClickerUI = GameObject.Find("UI/Clicker");
+        UIIndicatorText = GameObject.Find("UIIndicator").transform.GetChild(0).GetComponent<Text>();
+    }
+    private void Start()
+    {
         GameObject.Find("UI/Micro/Buy Gold").GetComponent<Button>().onClick.AddListener(AddGold); //addgold button func
-        GameObject.Find("UI/Menu/ExitGame").GetComponent<Button>().onClick.AddListener(QuitGame); //quit button func
+        GameObject.Find("UI/Menu/ExitGame").GetComponent<Button>().onClick.AddListener(delegate { MenuFunc(GameObject.Find("UI/Menu/ExitGame")); }); //quit button func
+        GameObject.Find("UI/Menu/RestartGame").GetComponent<Button>().onClick.AddListener(delegate { MenuFunc(GameObject.Find("UI/Menu/RestartGame")); }); //menu button func
         foreach (Transform button in TowerUI.transform)
         {
             if (button.name != "Text" && button.name != "Current Cost")
             {
-                button.GetComponent<Button>().onClick.AddListener(delegate { TowerFunc(button.gameObject); });
+                button.GetComponent<Button>().onClick.AddListener(delegate { TowerFunc(button.gameObject); }); //listeners that require a parameter must be wrapped in a delegate to pass correctly
             }
         }
         foreach (Transform button in ClickerUI.transform)
@@ -30,7 +35,6 @@ public class ButtonHandler : MonoBehaviour
                 button.GetComponent<Button>().onClick.AddListener(delegate { ClickerFunc(button.gameObject); });
             }
         }
-        UIIndicatorText = GameObject.Find("UIIndicator").transform.GetChild(0).GetComponent<Text>();
         trs = new Transform[transform.childCount];
         for (int i = 0; i < transform.childCount; i++) //main selections in the menu
         {
@@ -54,7 +58,7 @@ public class ButtonHandler : MonoBehaviour
     }
     private void Update()
     {
-        if (TowerUI.activeSelf)
+        if (TowerUI.activeSelf) //update tower menu values
         {
             foreach (Transform item in TowerUI.transform)
             {
@@ -111,23 +115,23 @@ public class ButtonHandler : MonoBehaviour
                 }
             }
         }
-        if (ClickerUI.activeSelf)
+        if (ClickerUI.activeSelf) // update clicker menu values
         {
             foreach (Transform item in ClickerUI.transform)
             {
                 switch (item.name)
                 {
                     case "Current Cost":
-                        item.GetChild(0).GetComponent<Text>().text = "Current Upgrade Cost : " + GameManager.cost.ToString();
+                        item.GetChild(0).GetComponent<Text>().text = "Current Upgrade Cost : " + GameManagerStuff.Cost.ToString();
                         break;
                     case "Kill Bonus":
-                        item.GetChild(0).GetComponent<Text>().text = "Kill Bonus : " + GameManager.bonus.ToString();
+                        item.GetChild(0).GetComponent<Text>().text = "Kill Bonus : " + GameManagerStuff.Bonus.ToString();
                         break;
                     case "Armour Piercing":
-                        item.GetChild(0).GetComponent<Text>().text = "Armour Piercing : " + GameManager.armourpiercingpc.ToString() + "%";
+                        item.GetChild(0).GetComponent<Text>().text = "Armour Piercing : " + GameManagerStuff.ArmourPiercingPC.ToString() + "%";
                         break;
                     case "Damage":
-                        item.GetChild(0).GetComponent<Text>().text = "Damage" + Mathf.Abs(GameManager.Damage).ToString();
+                        item.GetChild(0).GetComponent<Text>().text = "Damage" + Mathf.Abs(GameManagerStuff.Damage).ToString();
                         break;
                 }
             }
@@ -137,8 +141,8 @@ public class ButtonHandler : MonoBehaviour
     {
         try
         {
-            UIIndicatorText.text = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.name;
-            Transform[] trs2 = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.GetComponentsInChildren<Transform>(true);
+            UIIndicatorText.text = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.name; //get current event object
+            Transform[] trs2 = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.GetComponentsInChildren<Transform>(true); //get active and inactive children of current event object
             foreach (Transform b in trs)
             {
                 foreach (Transform c in b)
@@ -167,38 +171,47 @@ public class ButtonHandler : MonoBehaviour
     {
         GameManagerStuff.Currency += 1000;
     }
-    private void QuitGame()
+    private void MenuFunc(GameObject gO)
     {
-        Application.Quit();
+        switch (gO.name)
+        {
+            case "ExitGame":
+                Application.Quit();
+                break;
+            case "RestartGame":
+                StartCoroutine(GameManager.RestartGame());
+                break;
+        }
+
     }
-    private void ClickerFunc(GameObject gO)
+    private void ClickerFunc(GameObject gO) //clicker upgrade button functionality
     {
         switch (gO.name)
         {
             case "Damage":
-                if (GameManager.CanAfford(GameManager.cost))
+                if (GameManager.CanAfford(GameManagerStuff.Cost))
                 {
-                    GameManagerStuff.Currency -= GameManager.cost;
-                    GameManager.cost += 10;
-                    GameManager.Damage -= 0.5f;
+                    GameManagerStuff.Currency -= GameManagerStuff.Cost;
+                    GameManagerStuff.Cost = Mathf.Round(GameManagerStuff.Cost * 1.05f) + 10;
+                    GameManagerStuff.Damage -= 0.5f;
                 }
                 break;
             case "Kill Bonus":
-                if (GameManager.CanAfford(GameManager.cost))
+                if (GameManager.CanAfford(GameManagerStuff.Cost))
                 {
-                    GameManagerStuff.Currency -= GameManager.cost;
-                    GameManager.bonus += 15;
-                    GameManager.cost += 10;
+                    GameManagerStuff.Currency -= GameManagerStuff.Cost;
+                    GameManagerStuff.Bonus += 15;
+                    GameManagerStuff.Cost += 10;
                 }
                 break;
             case "Armour Piercing":
-                if (GameManager.CanAfford(GameManager.cost))
+                if (GameManager.CanAfford(GameManagerStuff.Cost))
                 {
-                    if (GameManager.armourpiercingpc <= 90)
+                    if (GameManagerStuff.ArmourPiercingPC <= 90)
                     {
-                        GameManagerStuff.Currency -= GameManager.cost;
-                        GameManager.armourpiercingpc += 10;
-                        GameManager.cost += 10;
+                        GameManagerStuff.Currency -= GameManagerStuff.Cost;
+                        GameManagerStuff.ArmourPiercingPC += 10;
+                        GameManagerStuff.Cost += 10;
                     }
                     else
                     {
@@ -208,7 +221,7 @@ public class ButtonHandler : MonoBehaviour
                 break;
         }
     }
-    private void TowerFunc(GameObject gO)
+    private void TowerFunc(GameObject gO) //tower upgrade menu button functionality
     {
         switch (gO.name)
         {

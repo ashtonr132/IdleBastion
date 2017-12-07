@@ -3,7 +3,7 @@
 public class BuildingControls : MonoBehaviour
 {
     private GameObject[,] Grid;
-    private GameObject SelGridPiece, Indicator, maincamera;
+    private GameObject SelGridPiece, Indicator;
     private CreateGameGrid CGG;
     private Vector3 IndPlacement;
     private GameManagerStuff GameManager;
@@ -12,7 +12,6 @@ public class BuildingControls : MonoBehaviour
     
     void Start()// Use this for initialization
     {
-        maincamera = GameObject.Find("Main Camera");
         BuildSound = (AudioClip)Resources.Load("Audio/Sound Effects/RandomSfx/swhit");
         CGG = gameObject.GetComponent<CreateGameGrid>();
         GameManager = GameObject.Find("GameManager").GetComponent<GameManagerStuff>();
@@ -30,18 +29,18 @@ public class BuildingControls : MonoBehaviour
         if (Input.GetMouseButtonDown(1)) //Right clicked
         {
             RaycastHit hit; //Ray stuff for damage text popups
-            if ((Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)))
+            if ((Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))) //ray from camera to screen point
             {
                 Destroy(Indicator);
                 if (hit.transform.gameObject == Indicator) //On indicator
                 {
                     if (Indicator.transform.parent.Find("Tower") == null) //Is square built on already?
                     {
-                        if (MaxTowers <= GameManagerStuff.TowersBuilt)
+                        if (GameManagerStuff.TowersBuilt < MaxTowers) //build tower
                         {
                             GameObject Tower = GameManager.AssignComponents("Tower", ((GameObject)Resources.Load("Construction/Tower")).transform.GetChild(0).GetComponent<MeshFilter>().sharedMesh, (Material)Resources.Load("Construction/TowerMat"), true);
                             GameObject TowerRoof = GameManager.AssignComponents("TowerRoof", ((GameObject)Resources.Load("Construction/TowerRoof")).transform.GetChild(0).GetComponent<MeshFilter>().sharedMesh, new Material(Shader.Find("Standard")), false);
-                            TowerRoof.transform.position = Tower.transform.position + new Vector3(0, (int)(Tower.GetComponent<Collider>().bounds.size.y / 4), -Tower.transform.position.z);
+                            TowerRoof.transform.position = Tower.transform.position + new Vector3(-0.5f, (int)(Tower.GetComponent<Collider>().bounds.size.y / 4), 1.5f);
                             TowerRoof.transform.SetParent(Tower.transform);
                             Tower.AddComponent<TowerBehaviour>();
                             Tower.GetComponent<TowerBehaviour>().SetTowerType(TowerBehaviour.TowerID.Default);
@@ -50,12 +49,12 @@ public class BuildingControls : MonoBehaviour
                             Tower.transform.SetParent(Indicator.transform.parent);
                             Tower.transform.localScale /= 1.25f;
                             GameManager.PushToEventLog("Tower Built.");
-                            AudioSource.PlayClipAtPoint(BuildSound, maincamera.transform.position, 0.02f);
+                            AudioSource.PlayClipAtPoint(BuildSound, Camera.main.transform.position, 0.02f);
                             GameManagerStuff.TowersBuilt++;
                         }
                         else
                         {
-                            GameManager.PushToEventLog("You cannot have more than " + MaxTowers + ".");
+                            GameManager.PushToEventLog("You cannot have more than " + MaxTowers + "Towers.");
                         }
                     }
                     else

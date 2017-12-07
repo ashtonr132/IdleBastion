@@ -36,7 +36,7 @@ public class EnemySpawning : MonoBehaviour
         {
             for (int i = 0; i <= Interval; i++)
             {
-                yield return new WaitUntil(() => GameObject.Find("EnemyController").transform.childCount == 1);
+                yield return new WaitUntil(() => GameObject.Find("EnemyController").transform.childCount == 1); //wait for current stage enemies to be destroyed
                 if ((Interval - i) == 0)
                 {
                     Stages.Add(GenerateStage());
@@ -47,7 +47,7 @@ public class EnemySpawning : MonoBehaviour
                     GameManager.PushToEventLog("Stage Completed \nGold + " + OnStage * 10);
                     GameManagerStuff.Currency += OnStage * 10;
                     GameManager.PushToEventLog("Next Stage in " + (Interval - i).ToString());
-                    GameManager.score += LevelDifficulty;
+                    GameManagerStuff.Score += LevelDifficulty;
                 }
                 else
                 {
@@ -62,7 +62,7 @@ public class EnemySpawning : MonoBehaviour
     {
         GameObject GridPieceTemp = Grid[UnityEngine.Random.Range(0, 21), 22]; //one less than the grid size
         spawnPos = spawnPos ?? new Vector3(GridPieceTemp.transform.position.x + (GridPieceTemp.GetComponent<Renderer>().bounds.size.x / 2), GridPieceTemp.transform.position.y, GridPieceTemp.transform.position.z + (GridPieceTemp.GetComponent<Renderer>().bounds.size.y / 2));
-        GameObject tempMesh = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        GameObject tempMesh = GameObject.CreatePrimitive(PrimitiveType.Cube); //grab a cube mesh
         GameObject Enemy = GameManager.AssignComponents(id.ToString(), tempMesh.GetComponent<MeshFilter>().mesh, new Material(Shader.Find("Unlit/Color")), true);
         Destroy(tempMesh);
         Enemy.transform.position = (Vector3)spawnPos + Vector3.up;
@@ -74,7 +74,7 @@ public class EnemySpawning : MonoBehaviour
     }
     private EnemyFunction.EnemyID[] GenerateStage()
     {
-        LevelDifficulty = (int)((5 * Mathf.Sin((2 * Mathf.PI * OnStage) / -3)) + (5 * OnStage) + 3); //difficulty scaling math
+        LevelDifficulty = (int)((5 * Mathf.Sin((2 * Mathf.PI * OnStage) / -3)) + (5 * OnStage) + 3); //kwikmaffs
         int totalLevelSet = 0;
         List<EnemyFunction.EnemyID> temp = new List<EnemyFunction.EnemyID>();
         while (totalLevelSet < LevelDifficulty) //build level selecing enemies on the fly to fufill the levels difficulty cap
@@ -115,7 +115,7 @@ public class EnemySpawning : MonoBehaviour
             }
             totalLevelSet += tempint;
         }
-        EnemyFunction.EnemyID[] temparray= new EnemyFunction.EnemyID[temp.Count];
+        EnemyFunction.EnemyID[] temparray = new EnemyFunction.EnemyID[temp.Count];
         for (int i = 0; i < temp.Count; i++)
         {
             temparray[i] = temp[i];

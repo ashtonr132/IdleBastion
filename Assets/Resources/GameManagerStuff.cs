@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManagerStuff : MonoBehaviour
 {
-    internal static float TotalLifeTimeClicks, EnemiesKilled, TowersBuilt, Currency = 0, Population = 1;
-    internal float Damage = -1, cost = 10, bonus = 0, armourpiercingpc = 10, score = 0;
+    internal static float TotalLifeTimeClicks, EnemiesKilled, TowersBuilt, Currency = 0, Population = 1, Damage = -1, Cost = 10, Bonus = 0, ArmourPiercingPC = 10, Score = 0;
     private GameObject Canvas, FragmentEncapsulation;
     private Transform PlayerUI;
+    private bool isRunning = false;
 
     private void Start()
     {
@@ -19,9 +20,14 @@ public class GameManagerStuff : MonoBehaviour
     }
     void Update()
     {
-        Population += Time.deltaTime/75;
+        if (Population < 1 && isRunning == false) // if you lost the game and the coroutine isnt already running
+        {
+            PushToEventLog("You Have Died!");
+            StartCoroutine(RestartGame());
+        }
+        Population += Time.deltaTime/75; //add population and currency over time
         Currency += Time.deltaTime;
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButton(1)) //counts clicks
         {
             TotalLifeTimeClicks++;
         }
@@ -32,7 +38,7 @@ public class GameManagerStuff : MonoBehaviour
             PlayerUI.GetChild(3).GetChild(0).GetComponent<Text>().text = "Currency : " + ((int)Currency).ToString();
             PlayerUI.GetChild(4).GetChild(0).GetComponent<Text>().text = "Towers Built : " + TowersBuilt.ToString();
             PlayerUI.GetChild(5).GetChild(0).GetComponent<Text>().text = "Ememies Killed : " + EnemiesKilled.ToString();
-            PlayerUI.GetChild(6).GetChild(0).GetComponent<Text>().text = "Score : " + score.ToString();
+            PlayerUI.GetChild(6).GetChild(0).GetComponent<Text>().text = "Score : " + Score.ToString();
         }
     }
     internal GameObject AssignComponents(string name, Mesh mesh, Material mat, bool needsRB = false) //Setting up new game objects quickly
@@ -52,17 +58,21 @@ public class GameManagerStuff : MonoBehaviour
     }
     internal void PushToEventLog(string inString) //Put text into the scrolling game log
     {
-        Text EventLog = GameObject.Find("Canvas").transform.GetChild(0).GetChild(0).GetChild(0).GetComponent<Text>();
-        try
+        if (isRunning == false || inString.Contains("Restarting"))
         {
-            EventLog.text = "\n" + inString + EventLog.text;
-        }
-        catch (System.Exception)
-        {
-            EventLog.text = "Event Log Full! \n Event Log Cleared.";
+            Text EventLog = GameObject.Find("Canvas").transform.GetChild(0).GetChild(0).GetChild(0).GetComponent<Text>();
+            if (EventLog.text.Length + inString.Length <= (int)(65535 / 4)) //unity text cimponent has a max verticy limit of 65535, each character take 4 verticies, so if text length >= max length clear text
+            {
+                EventLog.text = "\n" + inString + EventLog.text;
+            }
+            else
+            {
+                EventLog.text = "Event Log Full! \n Event Log Cleared.";
+                PushToEventLog(inString);
+            }
         }
     }
-    internal void FragmentEnemy(GameObject GameObjectPos, int FragMin, int FragMax)
+    internal void FragmentEnemy(GameObject GameObjectPos, int FragMin, int FragMax) //this function was inspired by the example game CubeWorld in Casual game development, however i have written my own version with the functionality i required
     {
         var num = Random.Range(FragMin, FragMax);
         for (int i = 0; i < num; i++)
@@ -90,9 +100,9 @@ public class GameManagerStuff : MonoBehaviour
         AnimatorClipInfo[] clipInfo = DamageTextInstance.transform.GetChild(0).GetComponent<Animator>().GetCurrentAnimatorClipInfo(0); //How long is text bounce anim?
         Destroy(DamageTextInstance, clipInfo[0].clip.length); //Destroy after bounce anim ends
     }
-    internal IEnumerator FadeOut(GameObject FadeMe, float WaitTime)
+    internal IEnumerator FadeOut(GameObject FadeMe, float WaitTime) //slowly up the transparency value of an object until it is transparent then destroy it
     {
-        Color PreFadeColor = FadeMe.GetComponent<Renderer>().material.color;
+        Color PreFadeColor = FadeMe.GetComponent<Renderer>().material.color; //this function was inspired by the example game CubeWorld in Casual game development, however i have written my own version with the functionality i required
         yield return new WaitForSeconds(WaitTime);
         if (PreFadeColor.a >= 0)
         {
@@ -104,11 +114,29 @@ public class GameManagerStuff : MonoBehaviour
             Destroy(FadeMe);
         }
     }
-    internal void NotEnoughGold()
+    internal IEnumerator RestartGame()
+    {
+        isRunning = true; //as to not start multiple coroutines
+        for (int i = 8; i > 0; i--) //restarting game warning
+        {
+            PushToEventLog("Game Restarting In : " + i);
+            yield return new WaitForSeconds(1);
+        }
+        TotalLifeTimeClicks = 0; //resetting static values that need reset
+        EnemiesKilled = 0;
+        TowersBuilt = 0;
+        Currency = 0;
+        Population = 1;
+        Score = 0;
+        TowerBehaviour.LastTowerSelected = null;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name); //reload game scene
+        isRunning = false; //should not be necisarry but precautionary/completion reasons
+    }
+    internal void NotEnoughGold() //commonly used phrasing
     {
         PushToEventLog("Not Enough Gold");
     }
-    internal bool CanAfford(float f)
+    internal bool CanAfford(float f) //quickmath
     {
         if (f <= Currency)
         {
@@ -120,7 +148,7 @@ public class GameManagerStuff : MonoBehaviour
         }
     }
 }
-public static class HelperClass
+public static class HelperClass //inspired by lecturer Konstantinos Dokos, rewritten by me from memory/necisary functionality
 {
     internal static Vector3 ParameterChange(this Vector3 Vec, float? X = null, float? Y = null, float? Z = null) //Quick rewrite of readonly variable usings optional parameters as nullables to keep uneeded variables the same
     {
