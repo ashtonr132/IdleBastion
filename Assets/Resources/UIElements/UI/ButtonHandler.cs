@@ -169,7 +169,7 @@ public class ButtonHandler : MonoBehaviour
     }
     private void AddGold()
     {
-        GameManagerStuff.Currency += 1000;
+        GameManagerStuff.Currency += 10000;
     }
     private void MenuFunc(GameObject gO)
     {
