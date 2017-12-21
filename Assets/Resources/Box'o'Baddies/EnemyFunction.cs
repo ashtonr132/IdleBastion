@@ -381,7 +381,7 @@ public class EnemyFunction : MonoBehaviour
             {
                 GameManagerStuff.Currency += col.transform.parent.GetComponent<TowerBehaviour>().BonusGold;
             }
-            GameManager.DisplayValue(((DamageDealt / (ArmourVal / col.transform.parent.GetComponent<TowerBehaviour>().armourpiercingpc)) / 10), gameObject.transform.position);
+            GameManager.DisplayValue(((DamageDealt / (col.transform.parent.GetComponent<TowerBehaviour>().armourpiercingpc / ArmourVal)) / 10), gameObject.transform.position);
             GameManager.FragmentEnemy(gameObject, 1, 1);
             if (col.gameObject != null) //Destroy the bullet on impact, it also has a destroy timer hence the if isnotnull
             {
@@ -395,29 +395,29 @@ public class EnemyFunction : MonoBehaviour
         switch (CurrentEnemyID)
         {
             case EnemyID.Teleport:
-                ReAssignTypeVal(Color.white, id.ToString(), 20, 5, enemyvalue:20);
+                ReAssignTypeVal(Color.white, id.ToString(), 15, 5, enemyvalue:20);
                 break;
             case EnemyID.Phasing:
                 ReAssignTypeVal(Color.black, id.ToString(), maxhp: 4, enemyvalue: 15);
                 gameObject.GetComponent<Renderer>().material = (Material)(Resources.Load("Box'o'Baddies/FragmentMat"));
                 break;
             case EnemyID.Boss:
-                ReAssignTypeVal(Color.red, id.ToString(), 10, enemyvalue:250, armourvalue:3, scalar:25);
+                ReAssignTypeVal(Color.red, id.ToString(), enemyvalue:250, armourvalue:3, scalar:25);
                 break;
             case EnemyID.Assasin:
-                ReAssignTypeVal(Color.yellow, id.ToString(), 35, 5, 20, scalar:6);
+                ReAssignTypeVal(Color.yellow, id.ToString(), 20, 5, 20, scalar:6);
                 break;
             case EnemyID.Knight:
-                ReAssignTypeVal(Color.grey, id.ToString(), 10, 8, 30, 2.5f, 12);
+                ReAssignTypeVal(Color.grey, id.ToString(), 10, 8, 30, 1.5f, 12);
                 break;
             case EnemyID.Support:
-                ReAssignTypeVal(Color.clear, id.ToString(), 12, 8, 10, 0);
+                ReAssignTypeVal(Color.clear, id.ToString(), 11, 8, 10, 0);
                 break;
             case EnemyID.Mother:
-                ReAssignTypeVal(new Color32(255, 181, 197, 255), id.ToString(), 12, 15);
+                ReAssignTypeVal(new Color32(255, 181, 197, 255), id.ToString(), 11, 15);
                 break;
             case EnemyID.Shielded:
-                ReAssignTypeVal(new Color32(0, 0, 128, 255), id.ToString(), 12, 5, 9);
+                ReAssignTypeVal(new Color32(0, 0, 128, 255), id.ToString(), 9, 5, 9);
                 break;
             case EnemyID.Charger:
                 ReAssignTypeVal(new Color32(0, 255, 255, 255), id.ToString(), 50);
@@ -449,12 +449,12 @@ public class EnemyFunction : MonoBehaviour
                 break;
         }
     }
-    internal void ReAssignTypeVal(Color32 Color, string name = "Base Baddie", int movespeed = 15, int maxhp = 10, int enemyvalue = 10, float armourvalue = 1, int scalar = 10) //enemy type attributes setting
+    internal void ReAssignTypeVal(Color32 Color, string name = "Base Baddie", int movespeed = 10, int maxhp = 10, int enemyvalue = 10, float armourvalue = 1, int scalar = 10) //enemy type attributes setting
     {
         MoveSpeed = movespeed;
         MaxHP = maxhp + (GameObject.Find("EnemyController").GetComponent<EnemySpawning>().OnStage * 1.0025f); //difficulty scaling with level
         EnemyValue = enemyvalue;
-        ArmourVal = armourvalue + (GameObject.Find("EnemyController").GetComponent<EnemySpawning>().OnStage * 1.0001f);
+        ArmourVal = armourvalue + (GameObject.Find("EnemyController").GetComponent<EnemySpawning>().OnStage * 1.000001f);
         transform.localScale *= scalar;
         transform.name = name;
         GetComponent<Renderer>().material.color = Color;
