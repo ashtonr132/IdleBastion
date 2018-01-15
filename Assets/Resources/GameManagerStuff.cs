@@ -91,12 +91,11 @@ public class GameManagerStuff : MonoBehaviour
             StartCoroutine(FadeOut(Fragment, 0.15f));
         }
     }
-    internal void DisplayValue(float Display, Vector2 DisplayPosition) //Popup text
+    internal void DisplayValue(float Display, Vector3 DisplayPosition) //Popup text
     {
         GameObject DamageTextInstance = (GameObject)Instantiate((GameObject)Resources.Load("Box'o'Baddies/DamageValueParent")); //Position is wrong
         DamageTextInstance.transform.SetParent(Canvas.transform, false); //Text objects display via canvas
-        Vector2 CanvasBottomLeftofRect = ((Vector2)GameObject.Find("Canvas").transform.position - new Vector2(GameObject.Find("Canvas").GetComponent<RectTransform>().rect.width / 2, GameObject.Find("Canvas").GetComponent<RectTransform>().rect.height / 2));
-        DamageTextInstance.transform.position =  CanvasBottomLeftofRect + new Vector2((Camera.main.WorldToScreenPoint(DisplayPosition).x/Camera.main.pixelWidth) * GameObject.Find("Canvas").GetComponent<RectTransform>().rect.width, (Camera.main.WorldToViewportPoint(DisplayPosition).y/Camera.main.pixelHeight) * GameObject.Find("Canvas").GetComponent<RectTransform>().rect.height);
+        DamageTextInstance.transform.position = DisplayPosition + Vector3.right * 25 + Vector3.one * UnityEngine.Random.Range(-15, +15);
         string Temp = "";
         if (Display > 0)
         {

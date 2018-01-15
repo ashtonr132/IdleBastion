@@ -232,7 +232,6 @@ public class EnemyFunction : MonoBehaviour
                     var CurrentMoveSpeed = Mathf.PingPong(Time.time, MoveSpeed/4); // pingpong speed of charger
                     if (FinalPath.Count > 0 && CurrentMoveSpeed >= 1) //there is one instance where at this point the path can contain nothing, if thisis the case there is nothing to move to, so stand still and then get a new path because path.coun == 0
                     {
-                        print(CurrentMoveSpeed);
                         GetComponent<Rigidbody>().velocity = ((moveto + GetExtents(FinalPath[0])) - transform.position).normalized * CurrentMoveSpeed; //aim for the middle of each tile
                     }
                 }
