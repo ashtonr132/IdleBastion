@@ -128,8 +128,8 @@ public class EnemyFunction : MonoBehaviour
                         AudioSource.PlayClipAtPoint(DamageSound, maincamera.transform.position, 0.03f);
                     }
                     DamageDealt = GameManagerStuff.Damage;
-                    CurrentHP += (DamageDealt / (ArmourVal / GameManagerStuff.ArmourPiercingPC)) / 10;
-                    GameManager.DisplayValue(((DamageDealt / (ArmourVal / GameManagerStuff.ArmourPiercingPC)) / 10), gameObject.transform.position);
+                    CurrentHP += (DamageDealt / ArmourVal) * GameManagerStuff.ArmourPiercingPC;
+                    GameManager.DisplayValue((DamageDealt / ArmourVal) * GameManagerStuff.ArmourPiercingPC, gameObject.transform.position);
                     GameManager.FragmentEnemy(gameObject, 1, 1);
                     GameManagerStuff.Currency += GameManagerStuff.Bonus;
                     if (CurrentEnemyID == EnemyID.Teleport)
@@ -375,12 +375,12 @@ public class EnemyFunction : MonoBehaviour
             {
                 AudioSource.PlayClipAtPoint(DamageSound, maincamera.transform.position, 0.03f);
             }
-            CurrentHP += (DamageDealt / (ArmourVal / col.transform.parent.GetComponent<TowerBehaviour>().armourpiercingpc))/10;
+            CurrentHP += (DamageDealt / ArmourVal) * col.transform.parent.GetComponent<TowerBehaviour>().armourpiercingpc;
             if (CurrentHP <= 0)
             {
                 GameManagerStuff.Currency += col.transform.parent.GetComponent<TowerBehaviour>().BonusGold;
             }
-            GameManager.DisplayValue(((DamageDealt / (col.transform.parent.GetComponent<TowerBehaviour>().armourpiercingpc / ArmourVal)) / 10), gameObject.transform.position);
+            GameManager.DisplayValue((DamageDealt / ArmourVal) * col.transform.parent.GetComponent<TowerBehaviour>().armourpiercingpc, gameObject.transform.position);
             GameManager.FragmentEnemy(gameObject, 1, 1);
             if (col.gameObject != null) //Destroy the bullet on impact, it also has a destroy timer hence the if isnotnull
             {
